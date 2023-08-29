@@ -15,14 +15,9 @@ $ pip install pillow
 
 ## Usage
 ```
-$ python3 glyph2bit.py bitmaps/BIOS/D.png
-
-
-0xF8, 0x6C, 0x66, 0x66, 0x66, 0x6C, 0xF8, 0x00,
+$ python3 glyph2bit.py bitmaps/BIOS/
 ```
 
-Copy values to the engine font.h file.
+It will generate font.h file for you.
 
-```
-{0xF8, 0x6C, 0x66, 0x66, 0x66, 0x6C, 0xF8, 0x00}, /* D */
-```
+Images numbers coresponds to the INDEX characters in ASCII order: "!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ".
