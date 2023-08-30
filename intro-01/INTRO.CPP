@@ -1,4 +1,5 @@
 
+
 /** 
  *    P1X DOS INTRO #01
  *
@@ -24,18 +25,27 @@
 #include <math.h>
 #include "font.h"
 
-const char* MARQUEE = "P1X PRESENTS A (FREE)DOS INTRO FOR IBM PC 486DX2 @66MHZ - SEP/2023 BY KKJ";
-int textLength = strlen(MARQUEE);
+#define PIT_CTRL 0x43
+#define PIT_COUNTER0 0x40
+#define SPEAKER_PORT 0x61
+#define SCREEN_WIDTH 320
+#define SCREEN_HEIGHT 200
+#define FONT_WIDTH 8
+#define FONT_HEIGHT 8
+#define FONT_SCALE 4
+#define FONT_SPACE -2
 
-const int SCREEN_WIDTH = 320;
-const int SCREEN_HEIGHT = 200;
-const int FONT_WIDTH = 8;
-const int FONT_HEIGHT = 8;
-const int FONT_SCALE = 4;
-const int FONT_SPACE = -2;
+const char* MARQUEE = "P1X PRESENTS A (FREE)DOS INTRO FOR IBM PC 486DX2 @66MHZ - SEP/2023 BY KKJ";
+const int textLength = strlen(MARQUEE);
 unsigned char vgaBuffer[SCREEN_WIDTH*SCREEN_HEIGHT]={0};
 unsigned char textBuffer[SCREEN_WIDTH*SCREEN_HEIGHT]={0};
 unsigned char lineBuffer[2][SCREEN_WIDTH]={{0}};
+
+unsigned char bytebeat(unsigned int t) {
+    return (t * (t>>8)) & t>>4;
+}
+
+
 
 void setVGAMode(){
   __asm {
@@ -51,6 +61,23 @@ void resetTextMode(){
   }
 }
 
+
+void setupPCSpeaker(unsigned int freq) {
+    int divisor = 1193180 / freq;
+    outp(0x43, 0xB6);
+    outp(0x42, divisor & 0xFF);
+    outp(0x42, divisor >> 8);
+}
+
+void playBeat() {
+    outp(0x61, inp(0x61) | 3);
+}
+
+void resetPCSpeaker() {
+    outp(0x61, inp(0x61) & 0xFC);
+}
+
+
 void drawCharOnBuffer(char ch, int x, int y){
   int charIndex =  ch - '!';
   int LEFT = -(int)FONT_SCALE*0.5;
@@ -59,7 +86,7 @@ void drawCharOnBuffer(char ch, int x, int y){
   for (int j=0; j<FONT_HEIGHT; j++){
     for (int i=0; i<FONT_WIDTH; i++){
       if ( fontData[charIndex][j] & (0x80>>i)){
-	int c = vgaBuff er[(y+FONT_SCALE*j)*SCREEN_WIDTH+(x+FONT_SCALE*i)];
+	int c = vgaBuffer[(y+FONT_SCALE*j)*SCREEN_WIDTH+(x+FONT_SCALE*i)];
 	for(int fy=LEFT;fy<FONT_SCALE;++fy){
 	  for(int fx=LEFT;fx<FONT_SCALE;++fx){
 	    int posx = x+FONT_SCALE*i+fx;
@@ -138,12 +165,16 @@ int main(){
   setVGAMode();
   initLineBuffer();
   int time = 0;
+
   while(1){
     if (kbhit()&&getch()==27) break;
+    setupPCSpeaker((100+bytebeat(time+200)*100)%8000);
+    playBeat();
     drawGradient(time);
     time++;
   }
 
+  resetPCSpeaker();
   resetTextMode();
   return 0;
 }
