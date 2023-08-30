@@ -7,15 +7,15 @@ Tools for creating intros for (Free)DOS
  * VGA (Exact card to be decide)
 
 ## Open Software:
- * FreeDOS
- * OpenWatcom
- * FED (Folded Editor) as IDE
+ * [FreeDOS](https://freedos.org/)
+ * [OpenWatcom](https://openwatcom.org/)
+ * [FED - Folding Text Editor](https://shawnhargreaves.com/fed/) as IDE 
 
 ## Intros (Roadmap)
- * #01 - initial engine: wobble bars, font implementation, text scrollers
+ * [Intro #01](intro-01) - initial engine: vsync, wobble bars, font implementation, text scrollers
  * #02 - bitebeat
  * #03 - vector, wireframe 3D graphics
 
 ## Tools
- * glyph2bit converts 8x8 PNG images to bit representation for the engine
- * BIOS Font (png&bits)
+ * [glyph2bit](glyph2bit) converts 8x8 PNG images to bit representation for the engine
+ * [BIOS Font](glyph2bit/bitmaps/BIOS/) (png&gimp)
