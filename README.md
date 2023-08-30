@@ -13,7 +13,7 @@ Tools for creating intros for (Free)DOS
 
 ## Intros (Roadmap)
  * [Intro #01](intro-01) - initial engine: vsync, wobble bars, font implementation, text scrollers
- * #02 - bitebeat
+ * #02 - bytebeat
  * #03 - vector, wireframe 3D graphics
 
 ## Tools
