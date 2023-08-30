@@ -24,6 +24,7 @@
 #include <string.h>
 #include <math.h>
 #include "font.h"
+#include "wirerend.h"
 
 #define PIT_CTRL 0x43
 #define PIT_COUNTER0 0x40
@@ -35,17 +36,38 @@
 #define FONT_SCALE 4
 #define FONT_SPACE -2
 
+#define TIME_SINBARS = 200
+#define TIME_CUBE = 10000
+#define TIME_P1X = 20000
+#define TIME_END_INTRO = 50000
+
+Vertex pyraVert[] = {
+    {0, 0, 0},
+    {1, 0, 0},
+    {1, 0, 1},
+    {0, 0, 1},
+    {0.5, 1, 0.5}
+};
+
+Polygon pyraPoly[] = {
+    {0, 1, 4},
+    {1, 2, 4},
+    {2, 3, 4},
+    {3, 0, 4},
+    {0, 1, 2},
+    {2, 3, 0}
+};
+
 const char* MARQUEE = "P1X PRESENTS A (FREE)DOS INTRO FOR IBM PC 486DX2 @66MHZ - SEP/2023 BY KKJ";
 const int textLength = strlen(MARQUEE);
 unsigned char vgaBuffer[SCREEN_WIDTH*SCREEN_HEIGHT]={0};
 unsigned char textBuffer[SCREEN_WIDTH*SCREEN_HEIGHT]={0};
 unsigned char lineBuffer[2][SCREEN_WIDTH]={{0}};
+unsigned char scrBuffer[SCREEN_WIDTH * SCREEN_HEIGHT]={0};
 
 unsigned char bytebeat(unsigned int t) {
-    return (t * (t>>8)) & t>>4;
+  return (t * (t>>8)) & t>>4;
 }
-
-
 
 void setVGAMode(){
   __asm {
@@ -61,22 +83,20 @@ void resetTextMode(){
   }
 }
 
-
 void setupPCSpeaker(unsigned int freq) {
-    int divisor = 1193180 / freq;
-    outp(0x43, 0xB6);
-    outp(0x42, divisor & 0xFF);
-    outp(0x42, divisor >> 8);
+  int divisor = 1193180 / freq;
+  outp(0x43, 0xB6);
+  outp(0x42, divisor & 0xFF);
+  outp(0x42, divisor >> 8);
 }
 
 void playBeat() {
-    outp(0x61, inp(0x61) | 3);
+  outp(0x61, inp(0x61) | 3);
 }
 
 void resetPCSpeaker() {
-    outp(0x61, inp(0x61) & 0xFC);
+  outp(0x61, inp(0x61) & 0xFC);
 }
-
 
 void drawCharOnBuffer(char ch, int x, int y){
   int charIndex =  ch - '!';
@@ -86,15 +106,16 @@ void drawCharOnBuffer(char ch, int x, int y){
   for (int j=0; j<FONT_HEIGHT; j++){
     for (int i=0; i<FONT_WIDTH; i++){
       if ( fontData[charIndex][j] & (0x80>>i)){
-	int c = vgaBuffer[(y+FONT_SCALE*j)*SCREEN_WIDTH+(x+FONT_SCALE*i)];
-	for(int fy=LEFT;fy<FONT_SCALE;++fy){
-	  for(int fx=LEFT;fx<FONT_SCALE;++fx){
-	    int posx = x+FONT_SCALE*i+fx;
-	    int posy = y+FONT_SCALE*j+fy;
-	    if(posx>0 & posx<SCREEN_WIDTH){
-	      textBuffer[posy*SCREEN_WIDTH+posx]=(c+32)%255;
-	    }
-	  }}
+        int c = vgaBuffer[(y+FONT_SCALE*j)*SCREEN_WIDTH+(x+FONT_SCALE*i)];
+        for(int fy=LEFT;fy<FONT_SCALE;++fy){
+          for(int fx=LEFT;fx<FONT_SCALE;++fx){
+            int posx = x+FONT_SCALE*i+fx;
+            int posy = y+FONT_SCALE*j+fy;
+            if(posx>0 & posx<SCREEN_WIDTH){
+              textBuffer[posy*SCREEN_WIDTH+posx]=(c+32)%255;
+            }
+          }
+        }
       }
     }
   }
@@ -141,7 +162,7 @@ void drawGradient(int time){
 
     int v = 0;
     if(y>100+bar_shift-bar_size & y<100+bar_shift+bar_size){
-	v=1;
+      v=1;
     }
 
     memcpy(vgaBuffer+y*SCREEN_WIDTH, lineBuffer[v]+shift, SCREEN_WIDTH-shift);
@@ -170,7 +191,8 @@ int main(){
     if (kbhit()&&getch()==27) break;
     setupPCSpeaker((100+bytebeat(time+200)*100)%8000);
     playBeat();
-    drawGradient(time);
+    /* drawGradient(time); */
+    Engine3D::render(pyraVert, sizeof(pyraVert) / sizeof(Vertex), pyraPoly, sizeof(pyraPoly) / sizeof(Polygon), scrBuffer, SCREEN_WIDTH, SCREEN_HEIGHT);
     time++;
   }
 
