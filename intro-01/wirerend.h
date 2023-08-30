@@ -6,20 +6,20 @@ struct Vertex {
 };
 
 struct Line {
-    int v1, v2;  // indices into the vertex array
+    int v1, v2;
 };
 
 struct Polygon {
-    int v1, v2, v3;  // indices into the vertex array
+    int v1, v2, v3;
 };
 
 struct Point2D {
     float x, y;
 };
 
-class Engine3D {
+class WireRend {
 public:
-    Engine3D();
+    WireRend();
 
     Point2D project(const Vertex& v);
 
@@ -34,6 +34,7 @@ public:
 
     Vertex calculateNormal(const Polygon& poly, const Vertex* vertices);
     bool isBackface(const Polygon& poly, const Vertex* vertices);
+    bool compareZ(const Vertex& v1, const Vertex& v2)
     void sortVerticesByZ(Vertex* vertices, int vertexCount);
 };
 

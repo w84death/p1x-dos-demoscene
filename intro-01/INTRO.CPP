@@ -192,7 +192,7 @@ int main(){
     setupPCSpeaker((100+bytebeat(time+200)*100)%8000);
     playBeat();
     /* drawGradient(time); */
-    Engine3D::render(pyraVert, sizeof(pyraVert) / sizeof(Vertex), pyraPoly, sizeof(pyraPoly) / sizeof(Polygon), scrBuffer, SCREEN_WIDTH, SCREEN_HEIGHT);
+    WireRend::render(pyraVert, sizeof(pyraVert) / sizeof(Vertex), pyraPoly, sizeof(pyraPoly) / sizeof(Polygon), scrBuffer, SCREEN_WIDTH, SCREEN_HEIGHT);
     time++;
   }
 
