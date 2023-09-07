@@ -1,21 +1,3 @@
-/**
- *    P1X DOS INTRO #01
- *
- *    Targetted hardware:
- *      - 486DX2/66Mhz
- *      - 4MB RAM
- *      - VGA
- *
- *    Open Software:
- *      - FreeDOS
- *      - OpenWatcom
- *
- *    by Krzysztof Krystian Jankowski
- *    https://krzysztofjankowski.com
- *
- *    2023/08/28: Init
- *    2023/09/07: Last update
- **/
 #include <dos.h>
 #include <conio.h>
 #include <string.h>
@@ -78,7 +60,7 @@ void fillScreen(int color){
 }
 
 void writePixel(int x, int y, int color){
-  buffer[(y<<8)+(y<<6)+x] = (unsigned char)color;
+   buffer[(y<<8)+(y<<6)+x] = (unsigned char)color;
 }
 
 void writeLineH(int x1, int x2, int y, int color){
@@ -103,10 +85,10 @@ void drawRectangle(int x1, int y1, int x2, int y2, int color){
 }
 
 void SetPalette(int index, int r, int g, int b) {
-  outp(0x03C8, index);
-  outp(0x03C9, r);
-  outp(0x03C9, g);
-  outp(0x03C9, b);
+    outp(0x03C8, index);
+    outp(0x03C9, r);
+    outp(0x03C9, g);
+    outp(0x03C9, b);
 }
 
 void initPalette() {
@@ -146,58 +128,58 @@ void initPalette() {
 }
 
 void drawFire(unsigned int t) {
-  unsigned int w = 32;
-  unsigned int h = 128;
-  int shiftX = 160-(w/2);
-  int shiftY = 100-(h/2);
-  int safeX = 0;
-  int safeY = 0;
-  unsigned int color = 0;
+    unsigned int w = 32;
+    unsigned int h = 128;
+    int shiftX = 160-(w/2);
+    int shiftY = 100-(h/2);
+    int safeX = 0;
+    int safeY = 0;
+    unsigned int color = 0;
 
-  for (int x=0; x<w; x++) {
-    double theta = PI*x/w;
-    double density = sin(theta);
+    for (int x=0; x<w; x++) {
+      double theta = PI*x/w;
+      double density = sin(theta);
 
-    if (density*(sin(t>>3+std::rand()%8))>0.15){
-      color = 96+(std::rand()%32)*density;
+      if (density*(sin(t>>3+std::rand()%8))>0.15){
+	color = 96+(std::rand()%32)*density;
+      }
+      if (density>0.9){
+	color = 128-(-0.5+sin(t>>2+x)+0.5)*96;
+      }
+
+      safeX = (x+shiftX)%SCREEN_WIDTH;
+      safeY = (h+shiftY)%SCREEN_HEIGHT;
+      buffer[((safeY<<8)+(safeY<<6))+safeX] = (unsigned int)color;
     }
-    if (density>0.9){
-      color = 128-(-0.5+sin(t>>2+x)+0.5)*96;
+
+    for (int y = shiftY; y < h+shiftY; y++) {
+	for (int x = shiftX; x < w+shiftX; x++) {
+	    float value = 0.0f;
+
+	    value += buffer[((y + 1) % SCREEN_WIDTH) * SCREEN_WIDTH + (x)];
+	    value += buffer[((y + 1) % SCREEN_WIDTH) * SCREEN_WIDTH + (x-1)];
+	    value += buffer[((+y + 1) % SCREEN_WIDTH) * SCREEN_WIDTH + (x+1)];
+	    value += buffer[((+y + 2) % SCREEN_WIDTH) * SCREEN_WIDTH + (x)];
+	    value /= 4.0125;
+
+	    color = (int)value%128;
+	    safeX = x%SCREEN_WIDTH;
+	    safeY = y%SCREEN_HEIGHT;
+	    buffer[(safeY<<8)+(safeY<<6)+safeX] = (unsigned int)color;
+	}
     }
-
-    safeX = (x+shiftX)%SCREEN_WIDTH;
-    safeY = (h+shiftY)%SCREEN_HEIGHT;
-    buffer[((safeY<<8)+(safeY<<6))+safeX] = (unsigned int)color;
-  }
-
-  for (int y = shiftY; y < h+shiftY; y++) {
-    for (int x = shiftX; x < w+shiftX; x++) {
-      float value = 0.0f;
-
-      value += buffer[((y + 1) % SCREEN_WIDTH) * SCREEN_WIDTH + (x)];
-      value += buffer[((y + 1) % SCREEN_WIDTH) * SCREEN_WIDTH + (x-1)];
-      value += buffer[((+y + 1) % SCREEN_WIDTH) * SCREEN_WIDTH + (x+1)];
-      value += buffer[((+y + 2) % SCREEN_WIDTH) * SCREEN_WIDTH + (x)];
-      value /= 4.0125;
-
-      color = (int)value%128;
-      safeX = x%SCREEN_WIDTH;
-      safeY = y%SCREEN_HEIGHT;
-      buffer[(safeY<<8)+(safeY<<6)+safeX] = (unsigned int)color;
-    }
-  }
 }
 
 void drawPalette() {
-  unsigned int w = SCREEN_WIDTH;
-  unsigned int h = SCREEN_HEIGHT;
+    unsigned int w = SCREEN_WIDTH;
+    unsigned int h = SCREEN_HEIGHT;
 
-  for (int c = 0; c < 256; c++) {
-    memset(buffer+c,c,1);
-  }
-  for (int y=0;y<8;y++){
-    memcpy(buffer+y*w,buffer,w);
-  }
+    for (int c = 0; c < 256; c++) {
+      memset(buffer+c,c,1);
+    }
+    for (int y=0;y<8;y++){
+      memcpy(buffer+y*w,buffer,w);
+    }
 }
 
 void initStars(){
@@ -228,7 +210,7 @@ void drawStars(){
     if(x>0 and x<SCREEN_WIDTH and y>0 and y<SCREEN_HEIGHT){
       double theta = PI*screenX/SCREEN_WIDTH;
       double dens = 1.0f-sin(theta)*0.6;
-      buffer[(y<<8)+(y<<6)+x] = dens*(32-32.0*(stars[i].z*0.01));
+       buffer[(y<<8)+(y<<6)+x] = dens*(32-32.0*(stars[i].z*0.01));
     }
 
     if(stars[i].z >100){
@@ -250,19 +232,19 @@ void drawCharOnBuffer(char ch, int x, int y, int color, int mode){
 
     for (int i=0; i<FONT_WIDTH; i++){
       if ( fontData[charIndex][j] & (0x80>>i)){
-        for(int fy=LEFT;fy<FONT_SCALE;++fy){
-          for(int fx=LEFT;fx<FONT_SCALE;++fx){
-            int posx = x+FONT_SCALE*i+fx;
-            int posy = y+FONT_SCALE*j+fy;
-            if(posx>0 & posx<SCREEN_WIDTH){
-              int c = color;
-              if(mode==FONT_GRADIENT){
-                c = (color+grad-LEFT+fy)%255;
-              }
-              buffer[(posy<<8)+(posy<<6)+posx] = c;
-            }
-          }
-        }
+	for(int fy=LEFT;fy<FONT_SCALE;++fy){
+	  for(int fx=LEFT;fx<FONT_SCALE;++fx){
+	    int posx = x+FONT_SCALE*i+fx;
+	    int posy = y+FONT_SCALE*j+fy;
+	    if(posx>0 & posx<SCREEN_WIDTH){
+	      int c = color;
+	      if(mode==FONT_GRADIENT){
+	       c = (color+grad-LEFT+fy)%255;
+	      }
+	      buffer[(posy<<8)+(posy<<6)+posx] = c;
+	    }
+	  }
+	}
       }
     }
     grad+=10;
