@@ -35,13 +35,57 @@
 #define DEMO_START      0
 #define DEMO_INTRO      1
 #define DEMO_HIGHWAY    10
-#define DEMO_FIREPLACE  23
-#define DEMO_SINEBARS   32
-#define DEMO_OUTRO      70
-#define DEMO_END        80
+#define DEMO_FIREPLACE  22
+#define DEMO_SINEBARS   34
+#define DEMO_OUTRO      74
+#define DEMO_END        90
+
+#define C 130
+#define D 146
+#define E 164
+#define F 174
+#define G 196
+
+float sfxLastTimer = 0.0f;
+int sfxNoteIndex = 0;
+float sfxNoteStartTime=0.0f;
+struct Note{
+  int freq;
+  float duration;
+};
+
+Note tune[] = {
+  {E,0.15f},
+  {D,0.15f},
+  {C,0.15f},
+  {D,0.15f},
+  {E,0.15f},
+  {E,0.15f},
+  {E,0.30f},
+  {D,0.15f}, 
+  {D,0.15f},
+  {D,0.30f},
+  {E,0.15f},
+  {G,0.15f},
+  {G,0.30f},
+  {E,0.15f},
+  {D,0.15f},
+  {C,0.15f},
+  {D,0.15f},
+  {E,0.15f},
+  {E,0.15f},
+  {E,0.15f},
+  {E,0.15f},
+  {D,0.15f},
+  {D,0.15f},
+  {E,0.15f},
+  {D,0.15f},
+  {C,0.30f},
+};
+const int NUM_NOTES = sizeof(tune)/sizeof(Note);
 
 unsigned int DEMO_SCENE = 0;
-const float TARGET_FRAME_TIME = 1.0f/60.0f;
+const float TARGET_FRAME_TIME = 1.0f/70.0f;
 const double PI = 3.14159265358979323846;
 const float ASPECT_RATIO = (4.0f/3.0f)/((float)SCREEN_WIDTH/(float)SCREEN_HEIGHT);
 unsigned int lastDT=0;
@@ -259,6 +303,45 @@ void colorCycle(int start, int end){
   updatePalette();
 }
 
+// SFX
+
+void sfxStart(float sound){
+  if(sound>10.0f){
+    float sfxSound = sound;
+    int sfxFreq = (int)(1193180/sfxSound);
+
+    outp(0x43,0xB6);
+    outp(0x42,sfxFreq&0xFF);
+    outp(0x42,(sfxFreq>>8)&0xFF);
+    outp(0x61,inp(0x61)|3);
+  }
+}
+
+void sfxStop(){
+  outp(0x61,inp(0x61)&0xFC);
+}
+
+void playTune(float timer, float dt){
+  float reduction = 0.2f;
+  float decay = 0.5f;
+  float noteDuration = tune[sfxNoteIndex].duration-dt;
+  if(timer-sfxLastTimer >= noteDuration){
+    sfxStop();
+    sfxNoteIndex = (sfxNoteIndex + 1)% NUM_NOTES;
+    sfxStart(tune[sfxNoteIndex].freq);
+    sfxLastTimer = timer;
+    sfxNoteStartTime = timer;
+  }
+
+  float elapsed = (timer-sfxNoteStartTime)/noteDuration;
+  if(elapsed>decay and (reduction*elapsed)<0.7){
+    sfxStart(tune[sfxNoteIndex].freq * (1.0-reduction*elapsed));
+  }
+
+}
+
+// VFX
+
 void addFire(unsigned int t, int w, int h){
     int shiftX = 160-(w/2);
     int shiftY = 100-(h/2);
@@ -331,6 +414,7 @@ void initFireplace(){
   drawCPU(CENTER_X, 148);
 }
 
+
 void drawPalette() {
     unsigned int w = SCREEN_WIDTH;
     unsigned int h = SCREEN_HEIGHT;
@@ -342,6 +426,8 @@ void drawPalette() {
       memcpy(buffer+y*w,buffer,256);
     }
 }
+
+// STARS
 
 void initStars(){
   for (int i=0;i<STARS_MAX;i++){
@@ -374,6 +460,7 @@ void drawStars(float dt){
   }
 }
 
+// GFX
 void drawGradient(int startColor, int gap){
   float maxDist = sqrt(CENTER_X*CENTER_X+CENTER_Y*CENTER_Y);
   for(int y=0;y<SCREEN_HEIGHT;y++){
@@ -389,6 +476,37 @@ void drawGradient(int startColor, int gap){
   }
 }
 
+void initSprite(int bank, int startColor){
+  int colors = 32;
+  for(int y=0;y<SPRITE_SIZE;y++){
+    for(int x=0;x<SPRITE_SIZE;x++){
+      float ax = (x-SPRITE_SIZE/2);
+      float ay = (y-SPRITE_SIZE/2);
+      float dist = sqrt((ax*ax)+(ay)*(ay));
+      int color = (int)(startColor+(dist/(SPRITE_SIZE*0.5))*colors);
+      if(color>startColor+colors) color=0;
+      sprite[bank][(y<<5)+x] = color;
+    }
+  }
+}
+
+void drawSprite(int bank, int x, int y){
+  int shift=SPRITE_SIZE>>1;
+  for (int j=0; j<SPRITE_SIZE; j++){
+    for (int i=0; i<SPRITE_SIZE; i++){
+      int c = sprite[bank][(j<<5)+i];
+      if (c>0){
+	int posx = x+i-shift;
+	int posy = y+j-shift;
+	if(posx>0 and posx<SCREEN_WIDTH){
+	  buffer[(posy<<8)+(posy<<6)+posx] = c;
+	}
+      } 
+    }
+  }
+}
+
+// TEXT
 void drawCharOnBuffer(char ch, int x, int y, int color, int scale, int mode){
   int charIndex =  ch - '!';
   int LEFT = -(int)scale*0.5;
@@ -434,36 +552,6 @@ void drawStringOnBuffer(const char* str, int x, int y, int color, int scale, int
   }
 }
 
-void initSprite(int bank, int startColor){
-  int colors = 32;
-  for(int y=0;y<SPRITE_SIZE;y++){
-    for(int x=0;x<SPRITE_SIZE;x++){
-      float ax = (x-SPRITE_SIZE/2);
-      float ay = (y-SPRITE_SIZE/2);
-      float dist = sqrt((ax*ax)+(ay)*(ay));
-      int color = (int)(startColor+(dist/(SPRITE_SIZE*0.5))*colors);
-      if(color>startColor+colors) color=0;
-      sprite[bank][(y<<5)+x] = color;
-    }
-  }
-}
-
-void drawSprite(int bank, int x, int y){
-  int shift=SPRITE_SIZE>>1;
-  for (int j=0; j<SPRITE_SIZE; j++){
-    for (int i=0; i<SPRITE_SIZE; i++){
-      int c = sprite[bank][(j<<5)+i];
-      if (c>0){
-	int posx = x+i-shift;
-	int posy = y+j-shift;
-	if(posx>0 and posx<SCREEN_WIDTH){
-	  buffer[(posy<<8)+(posy<<6)+posx] = c;
-	}
-      } 
-    }
-  }
-}
-
 int drawSineText(float dt, float timer, int x, int y, int color, int bg){
   float speed = 120.0f;
   float bgSpeed = 8.0f;
@@ -485,7 +573,7 @@ int drawSineText(float dt, float timer, int x, int y, int color, int bg){
 void drawTypewriter(const char* str, float dt, int color, int scale){
   writerDelayCount += dt;
   if(writerDelayCount>WRITER_DELAY && writerIndex<strlen(str)){
-    writerDelayCount = 0;
+    writerDelayCount = 0; 
     char ch = str[writerIndex]; 
     if(writerX + FONT_WIDTH*scale > writerEnd){
       writerX = writerStart;
@@ -527,17 +615,21 @@ void drawSineBars(float timer, int barShift){
 }
 
 void drawStats(float time, float deltaTime){
-    drawRectangle(2,6,48,24,4);
+    drawRectangle(2,6,48,32,4);
     drawLineH(2,48,5,40);
-    drawLineH(2,48,25,40);
+    drawLineH(2,48,33,40);
     char timerStr[20];
     char deltaStr[10];
+    char noteStr[3];
     sprintf(timerStr,"%.1f",time);
     sprintf(deltaStr,"%.2f",deltaTime*1000);
+    sprintf(noteStr,"%d",sfxNoteIndex);
     const char* timer = timerStr;
     const char* delter = deltaStr;
+    const char* noter = noteStr;
     drawStringOnBuffer(timer,4,8,127,1,FONT_COLOR,-1);
     drawStringOnBuffer(delter,4,16,127,1,FONT_COLOR,-1);
+    drawStringOnBuffer(noter,4,24,127,1,FONT_COLOR,-1);
     drawPalette();
 }
 
@@ -704,6 +796,7 @@ void waitForVRetraceStart(){
 
 int main() {
   setGraphicsMode();
+  sfxStop();
   initPalette(0);
   initLineBuffer();
   initStars();
@@ -730,6 +823,7 @@ int main() {
 
   while(1){
     if (kbhit()&&getch()==KEY_ESC) break; 
+    playTune(timer,dt);
 
     // SCENE SWITCHER
     switch((int)timer){
@@ -803,6 +897,9 @@ int main() {
 	memset(buffer, 0, sizeof(buffer));
 	DEMO_SCENE=DEMO_START;
 	timer = DEMO_START;
+	sfxLastTimer = 0;
+	sfxNoteIndex = dt;
+	sfxStop();
 	break;
     }
 
@@ -878,14 +975,9 @@ int main() {
 
     time++;
     timer+=dt;
-
-    /*
-    if(dt<targetFrameTime){
-      delay((int)( (targetFrameTime-dt)*1000) );
-      timer-=targetFrameTime-dt;
-    }*/
   }
 
+  sfxStop();
   delete[] buffer;
   setTextMode();
   return 0;
