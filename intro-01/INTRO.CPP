@@ -1,4 +1,5 @@
 /* INTRO */
+/* wcl386 -ox -fp3 -mc -or -ol -ou intro.exe */
 
 #include <dos.h>
 #include <conio.h>
@@ -55,32 +56,32 @@ struct Note{
 };
 
 Note tune[] = {
-  {E,0.15f},
-  {D,0.15f},
-  {C,0.15f},
-  {D,0.15f},
-  {E,0.15f},
-  {E,0.15f},
-  {E,0.30f},
-  {D,0.15f}, 
-  {D,0.15f},
-  {D,0.30f},
-  {E,0.15f},
-  {G,0.15f},
-  {G,0.30f},
-  {E,0.15f},
-  {D,0.15f},
-  {C,0.15f},
-  {D,0.15f},
-  {E,0.15f},
-  {E,0.15f},
-  {E,0.15f},
-  {E,0.15f},
-  {D,0.15f},
-  {D,0.15f},
-  {E,0.15f},
-  {D,0.15f},
-  {C,0.30f},
+  {E,0.333f},
+  {D,0.333f},
+  {C,0.333f},
+  {D,0.333f},
+  {E,0.333f},
+  {E,0.333f},
+  {E,0.666f},
+  {D,0.333f}, 
+  {D,0.333f},
+  {D,0.666f},
+  {E,0.333f},
+  {G,0.333f},
+  {G,0.666f},
+  {E,0.333f},
+  {D,0.333f},
+  {C,0.333f},
+  {D,0.333f},
+  {E,0.333f},
+  {E,0.333f},
+  {E,0.333f},
+  {E,0.333f},
+  {D,0.333f},
+  {D,0.333f},
+  {E,0.333f},
+  {D,0.333f},
+  {C,0.666f},
 };
 const int NUM_NOTES = sizeof(tune)/sizeof(Note);
 
@@ -702,6 +703,26 @@ void initHighway(int horizon){
   drawStringOnBuffer(text,CENTER_X-((strlen(text)*FONT_WIDTH*2)>>1),40,textColor,2,FONT_COLOR,-1);
 }
 
+void drawCar(int carX, int carY, int size, int maxWobble){
+  int wobble = 0;
+  int half = (size>>1);
+  int q = (size>>2);
+  int wq=0;
+  if(carX<CENTER_X-4){
+    wobble = -(maxWobble*(CENTER_X-carX)/CENTER_X);
+  }else if(carX>CENTER_X+4){
+    wobble = (maxWobble*(carX-CENTER_X)/CENTER_X);;
+  }
+  wq=wobble>>2;
+  for(int y=carY-size-wq;y<carY;y++){
+    int force=wobble*(carY-y)/(size+wq);
+    int c=160-(int)(16*sin(y*PI/(size+wq)*2));
+    drawLineH(carX-half+force,carX+half+force,y,c);
+  }
+  drawRectangle(carX-q-2,carY,carX-q+2,carY+2,0);
+  drawRectangle(carX+q-2,carY,carX+q+2,carY+2,0);
+}
+
 void drawHighway(float timer, int horizon, int bottom){
   float roadWidth = 160.0f;
   float stripeWidth = 10.0f;
@@ -818,7 +839,7 @@ int main() {
   float transitionOut = 0.0f;
   bool redraw = true;
   float timeSync=0.0f;
-
+  int hShift=0;
   memset(buffer, 0, sizeof(buffer));
 
   while(1){
@@ -871,7 +892,7 @@ int main() {
 	break;
       case DEMO_SINEBARS:
 	if(DEMO_SCENE==DEMO_SINEBARS) break;
-	memset(buffer, 0, sizeof(buffer));
+	memset(buffer,0, sizeof(buffer));
 	redraw=true;
 	transitionIn=100;
 	initPalette(2);
@@ -906,33 +927,40 @@ int main() {
     // SCENES
 
     if(redraw){
-      if(DEMO_SCENE==DEMO_INTRO){
-	drawStars(dt);
-	drawIntro(timer);
-      }
-      if(DEMO_SCENE==DEMO_HIGHWAY){ 
-	drawHighway(timer,horizon,bottom);
-	drawTypewriter(HELLO,dt,63,1);
-      }
 
-      if(DEMO_SCENE==DEMO_FIREPLACE){ 
-	drawFire(timer,32,96);
-	drawTypewriter(WORKHARD,dt,127,1);
-      }
+      switch(DEMO_SCENE){
+	case DEMO_INTRO:
+	  drawStars(dt);
+	  drawIntro(timer);
+	  break;
 
-      if(DEMO_SCENE==DEMO_SINEBARS){ 
-	int hShift = (int)(sin(timer*0.5f)*32);
-	drawSineBars(timer, hShift);
-	drawSnake(timer, hShift, SNAKE_BACK);
-	textPosition = drawSineText(dt,timer, textPosition,84+hShift, 128,0);
-	drawSnake(timer, hShift, SNAKE_FRONT);
-	colorCycle(128,192);
-	colorCycle(192,256);
-      }
+	case DEMO_HIGHWAY:
+	  drawHighway(timer,horizon,bottom);
+	  drawCar(CENTER_X+sin(timer*3.0f)*70,190,32,12);
+	  drawTypewriter(HELLO,dt,63,1);
+	  break;
 
-      if(DEMO_SCENE==DEMO_OUTRO){
-	drawTypewriter(GREETZ,dt,50,1);
-	colorCycle(192,256);
+	case DEMO_FIREPLACE: 
+	  drawFire(timer,32,96);
+	  drawTypewriter(WORKHARD,dt,127,1);
+	  break;
+
+	case DEMO_SINEBARS: 
+	  hShift = (int)(sin(timer*0.5f)*32);
+	  drawSineBars(timer, hShift);
+	  drawSnake(timer, hShift, SNAKE_BACK);
+	  textPosition = drawSineText(dt,timer, textPosition,84+hShift, 128,0);
+	  drawSnake(timer, hShift, SNAKE_FRONT);
+	  colorCycle(128,192);
+	  colorCycle(128,192);
+	  colorCycle(128,192);
+	  colorCycle(192,256);
+	  break;
+
+	case DEMO_OUTRO:
+	  drawTypewriter(GREETZ,dt,50,1);
+	  colorCycle(192,256);
+	break;
       }
     }
 
@@ -978,7 +1006,7 @@ int main() {
   }
 
   sfxStop();
-  delete[] buffer;
+  //delete[] buffer;
   setTextMode();
   return 0;
 }
