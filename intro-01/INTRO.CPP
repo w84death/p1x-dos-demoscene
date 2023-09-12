@@ -98,7 +98,7 @@ unsigned char sprite[16][SPRITE_SIZE*SPRITE_SIZE]={{0}};
 struct Star {float x,y,z;};
 const int STARS_MAX=300;
 Star stars[STARS_MAX];
-const float FOV=1.4f;
+const float FOV=1.1f;
 const float centerX = SCREEN_WIDTH/2;
 const float centerY = SCREEN_HEIGHT/2;
 
@@ -251,6 +251,21 @@ void initPalette(int paletteID) {
 	mainPal[576+i*3+1]=(int)(i*0.75);
 	mainPal[576+i*3+2]=0; 
       } // orange stripes 64
+
+      // custom colors
+      //blue light
+      mainPal[576]=31;
+      mainPal[577]=36;
+      mainPal[578]=63;
+      //blue dark
+      mainPal[576+3]=12;
+      mainPal[577+3]=15;
+      mainPal[578+3]=63;
+      //red
+      mainPal[576+6]=63;
+      mainPal[577+6]=4;
+      mainPal[578+6]=4;
+
     break; 
     case 2: // sinebars 
       for(int i=0;i<16;i++){
@@ -598,8 +613,8 @@ void initLineBuffer(){
 }
 
 void drawSineBars(float timer, int barShift){
-  const float wobble = 160.0f;
-  const float speed = 10.0f;
+  const float wobble = 4.0f;
+  const float speed = 1.0f;
 
   for (int y=0; y<SCREEN_HEIGHT; y++){
     float squish=10*640.0f;
@@ -650,44 +665,6 @@ void initOutro(){
   }
 }
 
-unsigned int drawRoad(float factor, int y, int horizon, int bottom, unsigned int roadColor){
-  int x1 = CENTER_X-factor*CENTER_X;
-  int x2 = CENTER_X+factor*CENTER_X;
-  //int groundColor = (y-horizon)>>3;
-  //drawLineH(0,SCREEN_WIDTH,y,groundColor);
-  //drawLineH(x1,x2,y,roadColor);
-  int step = (int)((y-horizon)*0.05f);
-  if(roadColor+step<48) roadColor+=step;
-  return roadColor;
-}
-
-int drawStripes(int y, int horizon, int bottom, int nextStripe, int anim){
-  unsigned int stripeColor = 192;
-  int stripeMin = 1;
-  int stripeMax = 18;
-  int spaceMin = 1;
-  int spaceMax = 120;
-  int stripeLen = 60;
-  float FOV=1.0f;
-
-  float lerpFactor = FOV*(float)(y-horizon)/(bottom-horizon);
-  int stripe = stripeMin+lerpFactor*(stripeMax-spaceMin);
-  int space = spaceMin+lerpFactor*(stripeMax-spaceMin);
-  int a = (int)(anim*lerpFactor);
-  if(y==nextStripe+a){
-    for (int sy=y+a; sy<y+a+(stripeLen*lerpFactor) && sy<=bottom; sy++){
-      float sf = FOV*(float)(sy-horizon)/(bottom-horizon);
-      int x1 = CENTER_X-(sf*(stripe>>1));
-      int x2 = CENTER_X+(sf*(stripe>>1));
-      unsigned int color = stripeColor+(int)(sy*lerpFactor);
-      if(color>255) color=255;
-      drawLineH(x1, x2, sy, color);
-    }
-    nextStripe = y+space+(stripeLen*lerpFactor);
-  } 
-  return nextStripe;
-}
-
 void initHighway(int horizon){
   const char* text = "SEPTEMBER 2023";
   unsigned int skyColor = 128;
@@ -703,24 +680,48 @@ void initHighway(int horizon){
   drawStringOnBuffer(text,CENTER_X-((strlen(text)*FONT_WIDTH*2)>>1),40,textColor,2,FONT_COLOR,-1);
 }
 
-void drawCar(int carX, int carY, int size, int maxWobble){
+void drawCar(int carX, int carY, int maxWobble){
   int wobble = 0;
+  int size=18;
   int half = (size>>1);
   int q = (size>>2);
   int wq=0;
+  int i=0;
+  int p=0;
   if(carX<CENTER_X-4){
     wobble = -(maxWobble*(CENTER_X-carX)/CENTER_X);
   }else if(carX>CENTER_X+4){
-    wobble = (maxWobble*(carX-CENTER_X)/CENTER_X);;
+    wobble = (maxWobble*(carX-CENTER_X)/CENTER_X);
   }
-  wq=wobble>>2;
-  for(int y=carY-size-wq;y<carY;y++){
+  for(int y=carY-size;y<carY+5;y++){
     int force=wobble*(carY-y)/(size+wq);
-    int c=160-(int)(16*sin(y*PI/(size+wq)*2));
-    drawLineH(carX-half+force,carX+half+force,y,c);
+    int c=252;
+
+    if(i==0)      {p=14;c=192;}
+    if(i==1)      {p=15;c=193;}
+    if(i>1&&i<=4) {p=15;c=0;} //glass
+    if(i==5)      {p=19;c=193;}
+    if(i==6)      {p=20;c=193;}
+    if(i==7)      {p=21;c=192;}
+    if(i>7&&i<=10) {p=21;c=193;}
+    if(i>10&&i<=12){p=21;c=194;} // lights
+    if(i==13)     {p=22;c=63;} // bumper
+    if(i==14)     {p=23;c=63;}
+    if(i==15)     {p=22;c=50;}
+    if(i==16)     {p=21;c=4;} // bottom
+    if(i==17)     {p=20;c=4;}
+    if(i==18)     {p=20;c=14;}
+    if(i==18)     {p=19;c=8;}
+    if(i>18)      {p=20;c=14+(i-18);}
+    if(i==22)     {p=17;c=14+(i-18);} 
+    drawLineH(carX-p+force,carX+p+force,y,c);
+
+    i++;
   }
-  drawRectangle(carX-q-2,carY,carX-q+2,carY+2,0);
-  drawRectangle(carX+q-2,carY,carX+q+2,carY+2,0);
+  drawRectangle(carX-15,carY,carX-11,carY+2,0);
+  drawRectangle(carX+11,carY,carX+15,carY+2,0);
+  drawRectangle(carX-5,carY-5,carX+5,carY-2,240);
+
 }
 
 void drawHighway(float timer, int horizon, int bottom){
@@ -732,10 +733,11 @@ void drawHighway(float timer, int horizon, int bottom){
 
   for(int y=horizon;y<SCREEN_HEIGHT;y++){
     float factor = FOV*(float)(y-horizon)/(bottom-horizon);
-    center = CENTER_X + (int)(32.0f*(sin(timer*bendSpeed*0.6+y*0.02f)+(sin(timer*bendSpeed*0.7+y*0.02f)))*factor);
+    center = CENTER_X + (int)(32.0f*(sin(timer*bendSpeed*0.2+y*0.02f)+(sin(timer*bendSpeed*0.3+y*0.02f)))*factor);
     int color = (int)(40*sin((factor*y)*PI/(SCREEN_HEIGHT*2)));
     int color2 = 64+(int)(64*sin((factor*y)*PI/(SCREEN_HEIGHT*2)));
-    int color3 = color2+128; 
+    int color3 = color2+131;
+    if(color3>255)color3=255;
     int x = (int)(center-factor*roadWidth);
     int safeX = (x>0)?x:0;
     int x2 = (int)(center+factor*roadWidth);
@@ -823,10 +825,6 @@ int main() {
   initStars();
   for(int i=0;i<16;i++) initSprite(i,16+(int)((i*PI/96)*96));
   int textPosition = SCREEN_WIDTH;
-  unsigned int time=0;
-  float fps=0.0f;
-  const char* cpuStr="I486";
-  const char* nickStr="W84DEATH";
   unsigned int kX = CENTER_X-6;
   unsigned int kY = CENTER_Y-8;
   int horizon = 80;
@@ -936,7 +934,7 @@ int main() {
 
 	case DEMO_HIGHWAY:
 	  drawHighway(timer,horizon,bottom);
-	  drawCar(CENTER_X+sin(timer*3.0f)*70,190,32,12);
+	  drawCar(CENTER_X+sin(timer*0.9f)*36,128,10);
 	  drawTypewriter(HELLO,dt,63,1);
 	  break;
 
@@ -1001,7 +999,6 @@ int main() {
       dt = getDeltaTime();
     }
 
-    time++;
     timer+=dt;
   }
 
