@@ -57,28 +57,28 @@ struct Note{
 
 Note tune[] = {
   {E,0.333f},
-  {D,0.333f},
+  {C,0.333f},
   {C,0.333f},
   {D,0.333f},
   {E,0.333f},
   {E,0.333f},
-  {E,0.666f},
-  {D,0.333f}, 
+  {F,0.666f},
+  {C,0.333f}, 
   {D,0.333f},
-  {D,0.666f},
-  {E,0.333f},
+  {E,0.666f},
+  {F,0.333f},
   {G,0.333f},
   {G,0.666f},
   {E,0.333f},
-  {D,0.333f},
   {C,0.333f},
+  {F,0.333f},
+  {F,0.333f},
+  {E,0.333f},
+  {E,0.333f},
   {D,0.333f},
   {E,0.333f},
-  {E,0.333f},
-  {E,0.333f},
-  {E,0.333f},
   {D,0.333f},
-  {D,0.333f},
+  {F,0.333f},
   {E,0.333f},
   {D,0.333f},
   {C,0.666f},
@@ -92,6 +92,7 @@ const float ASPECT_RATIO = (4.0f/3.0f)/((float)SCREEN_WIDTH/(float)SCREEN_HEIGHT
 unsigned int lastDT=0;
 unsigned char* vga = (unsigned char*)0xA0000;
 unsigned char buffer[SCREEN_WIDTH*SCREEN_HEIGHT]={0};
+unsigned char halfBuffer[SCREEN_WIDTH*SCREEN_WIDTH/2]={0};
 unsigned char lineBuffer[4][SCREEN_WIDTH]={{0}};
 unsigned char mainPal[768];
 unsigned char sprite[16][SPRITE_SIZE*SPRITE_SIZE]={{0}};
@@ -130,6 +131,7 @@ const char* BYE = ""
 "     M M X X I I I   P 1 X      "
 "  KRZYSZTOF KRYSTIAN JANKOWSKI  "
 " HTTPS://KRZYSZTOFJANKOWSKI.COM ";
+
 const int textLength = strlen(MARQUEE);
 int writerStart = 32;
 int writerEnd = SCREEN_WIDTH-writerStart;
@@ -265,8 +267,8 @@ void initPalette(int paletteID) {
       mainPal[576+6]=63;
       mainPal[577+6]=4;
       mainPal[578+6]=4;
-
     break; 
+
     case 2: // sinebars 
       for(int i=0;i<16;i++){
 	mainPal[(i)*3]=i>>1;
@@ -293,6 +295,29 @@ void initPalette(int paletteID) {
 	mainPal[576+i*3+1]=16+(int)(32*(sin(i*PI/63)));
 	mainPal[576+i*3+2]=(int)(16*(sin(i*PI/63)));
       } // green 64
+    break;
+
+    case 3: // outro 
+      for(int i=0;i<64;i++){
+	mainPal[(i)*3]=i;
+	mainPal[(i)*3+1]=i;
+	mainPal[(i)*3+2]=i;
+      } // grays 64
+      for(int i=0;i<64;i++){
+	mainPal[192+i*3]=(int)(i>>2);
+	mainPal[192+i*3+1]=(int)(i>>2);
+	mainPal[192+i*3+2]=(int)(i>>1);
+      } // bluenish 64
+      for(int i=0;i<64;i++){
+	mainPal[384+i*3]=(int)(i>>2);
+	mainPal[384+i*3+1]=0;
+	mainPal[384+i*3+2]=(int)(i>>1);
+      } // sunrise 64
+      for(int i=0;i<64;i++){
+	mainPal[576+i*3]=0;
+	mainPal[576+i*3+1]=(int)(i*0.75);
+	mainPal[576+i*3+2]=(int)(i*0.8); 
+      } // 64
     break;
   }
   updatePalette();
@@ -339,19 +364,20 @@ void sfxStop(){
 
 void playTune(float timer, float dt){
   float reduction = 0.2f;
-  float decay = 0.5f;
-  float noteDuration = tune[sfxNoteIndex].duration-dt;
+  float decay = 0.8f;
+  float noteDuration = tune[sfxNoteIndex].duration*0.333;
+  float var = 4*sin(timer*100.0f);
   if(timer-sfxLastTimer >= noteDuration){
     sfxStop();
     sfxNoteIndex = (sfxNoteIndex + 1)% NUM_NOTES;
-    sfxStart(tune[sfxNoteIndex].freq);
+    sfxStart(tune[sfxNoteIndex].freq*0.75+var);
     sfxLastTimer = timer;
     sfxNoteStartTime = timer;
   }
 
   float elapsed = (timer-sfxNoteStartTime)/noteDuration;
-  if(elapsed>decay and (reduction*elapsed)<0.7){
-    sfxStart(tune[sfxNoteIndex].freq * (1.0-reduction*elapsed));
+  if(elapsed>decay){
+    sfxStart((tune[sfxNoteIndex].freq*0.75+var)*(1.0-reduction*elapsed));
   }
 
 }
@@ -654,14 +680,52 @@ void drawIntro(float t){
   drawStringOnBuffer(text,135,100,63,1,FONT_COLOR,-1);
 }
 
+void drawFloor(){
+  int x,y;
+  float fov=200;
+  int color=64;
+
+  for(y=0;y<100;y++){
+    for(x=-160;x<160;x++){
+      float z=y; if(z==0)z=0.0001f;
+      float fx = x/z;
+      float fy = fov/z;
+      if(fx<0) fx=-fx+1;
+      if(fy<0) fy=-fy+1;
+      int c=color+(int)(63*sin((z)*PI/320));
+      if((int)fx%2==(int)fy%2) c+=64;
+      drawPixel(CENTER_X+x,CENTER_Y+y,c);
+    }
+  }
+}
+
 void initOutro(){
-  for(int y=-100;y<100;y++){
+  int half=(SCREEN_WIDTH*SCREEN_HEIGHT)/2;
+
+  for(int y=-100;y<0;y++){
     for(int x=-160;x<160;x++){
       float a=(atan2(y,x)+PI)*80.0f;
       float d=999/sqrt(x*x+y*y+1);
       int c=192+(int)(a+d)%64;
       drawPixel(CENTER_X+x,CENTER_Y+y,c);
     }
+  }
+  drawFloor();
+  memcpy(halfBuffer,buffer+half,half); 
+}
+
+void drawSpirals(float timer){
+  int half=SCREEN_WIDTH*SCREEN_HEIGHT/2;
+  memcpy(buffer+half,halfBuffer,half);
+  for(int i=0;i<32;i++){
+    float s = i*0.1f;
+    drawPixel(160+(int)(80*sin(s+timer*1.7f)),150+(int)(24*cos(s+timer*1.6f)),4+i*1.5);
+    float s2=s-0.025f;
+    drawPixel(160+(int)(80*sin(s2+timer*1.7f)),150+(int)(24*cos(s2+timer*1.6f)),4+i*1.5f-2);
+    float s3=s-0.05f;
+    drawPixel(160+(int)(80*sin(s3+timer*1.7f)),150+(int)(24*cos(s3+timer*1.6f)),4+i*1.5f-3);
+
+    drawPixel(160+(int)(100*sin(-i-timer*1.3f)),150+(int)(32*cos(-i-timer*1.8f)),192+i*2);
   }
 }
 
@@ -904,11 +968,11 @@ int main() {
 	if(DEMO_SCENE==DEMO_OUTRO) break;
 	memset(buffer, 0, sizeof(buffer));
 	redraw=true;
-	initPalette(2);
+	initPalette(3);
 	initOutro();
 	writerDelayCount = 0;
 	writerX = writerStart;
-	writerY = 50;
+	writerY = 25;
 	writerIndex = 0;
 	DEMO_SCENE=DEMO_OUTRO;
 	break;
@@ -956,7 +1020,8 @@ int main() {
 	  break;
 
 	case DEMO_OUTRO:
-	  drawTypewriter(GREETZ,dt,50,1);
+	  drawTypewriter(GREETZ,dt,63,1);
+	  drawSpirals(timer);
 	  colorCycle(192,256);
 	break;
       }
