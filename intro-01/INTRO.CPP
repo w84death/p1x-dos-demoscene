@@ -12,6 +12,7 @@
 #include "font.h"
 
 #define PALETTE_SIZE    256
+#define PALETTE_BANKS   6
 #define SPRITE_SIZE     32
 #define FONT_WIDTH      8
 #define FONT_HEIGHT     8
@@ -38,8 +39,10 @@
 #define DEMO_HIGHWAY    10
 #define DEMO_FIREPLACE  22
 #define DEMO_SINEBARS   34
-#define DEMO_OUTRO      74
-#define DEMO_END        90
+#define DEMO_SPIRALS    74
+#define DEMO_UNKNOWN    94
+#define DEMO_OUTRO      124
+#define DEMO_END        200
 
 #define C 130
 #define D 146
@@ -85,23 +88,25 @@ Note tune[] = {
 };
 const int NUM_NOTES = sizeof(tune)/sizeof(Note);
 
+unsigned char* vga = (unsigned char*)0xA0000;
+unsigned char buffer[SCREEN_WIDTH*SCREEN_HEIGHT]={0};
+unsigned char floorBuffer[SCREEN_WIDTH*SCREEN_WIDTH/2]={0};
+unsigned char tunnelBuffer[SCREEN_WIDTH*SCREEN_WIDTH]={0};
+unsigned char lineBuffer[4][SCREEN_WIDTH]={{0}};
+unsigned char mainPal[PALETTE_BANKS][768]={{0}};
+unsigned char sprite[16][SPRITE_SIZE*SPRITE_SIZE]={{0}};
 unsigned int DEMO_SCENE = 0;
 const float TARGET_FRAME_TIME = 1.0f/70.0f;
 const double PI = 3.14159265358979323846;
 const float ASPECT_RATIO = (4.0f/3.0f)/((float)SCREEN_WIDTH/(float)SCREEN_HEIGHT);
 unsigned int lastDT=0;
-unsigned char* vga = (unsigned char*)0xA0000;
-unsigned char buffer[SCREEN_WIDTH*SCREEN_HEIGHT]={0};
-unsigned char halfBuffer[SCREEN_WIDTH*SCREEN_WIDTH/2]={0};
-unsigned char lineBuffer[4][SCREEN_WIDTH]={{0}};
-unsigned char mainPal[768];
-unsigned char sprite[16][SPRITE_SIZE*SPRITE_SIZE]={{0}};
 struct Star {float x,y,z;};
 const int STARS_MAX=300;
 Star stars[STARS_MAX];
 const float FOV=1.1f;
 const float centerX = SCREEN_WIDTH/2;
 const float centerY = SCREEN_HEIGHT/2;
+int palBank=0;
 
 const char* MARQUEE = ""
 "P1X PRESENTS A (FREE)DOS INTRO FOR IBM PC I486DX2-66. "
@@ -197,156 +202,202 @@ void setPalette(int index, int r, int g, int b) {
     outp(0x03C9, b);
 }
 
-void updatePalette(){
+void updatePalette(int paletteID){
   for(int i=0;i<256;i++){
-    setPalette(i, mainPal[i * 3], mainPal[i * 3 + 1], mainPal[i * 3 + 2]);
+    setPalette(i, mainPal[paletteID][i * 3], mainPal[paletteID][i * 3 + 1], mainPal[paletteID][i * 3 + 2]);
   }
+  palBank=paletteID;
 }
 
-void initPalette(int paletteID) {
-  switch (paletteID){
-    case 0: // default
-      for(int i=0;i<32;i++){
-	mainPal[(i)*3]=i;
-	mainPal[(i)*3+1]=i;
-	mainPal[(i)*3+2]=i;
-      } // grays 32
-      for(int i=0;i<63+32;i++){
-	mainPal[96+i*3]=63;
-	mainPal[96+i*3+1]=i*0.65;
-	mainPal[96+i*3+2]=21;
-      } // fire 96
-      mainPal[384-3]=63;
-      mainPal[384-2]=63;
-      mainPal[384-1]=63;
-      // white 1
-      for(int i=0;i<64;i++){
-	mainPal[384+i*3]=16;
-	mainPal[384+i*3+1]=i;
-	mainPal[384+i*3+2]=50;
-      } // blue 64
-      for(int i=0;i<64;i++){
-	mainPal[576+i*3]=i;
-	mainPal[576+i*3+1]=i;
-	mainPal[576+i*3+2]=i; 
-      } // free 64
+void initPalette() {
+  for(int p=0;p<PALETTE_BANKS;p++){
+    switch (p){
+      case 0: // default
+	for(int i=0;i<32;i++){
+	  mainPal[p][(i)*3]=i;
+	  mainPal[p][(i)*3+1]=i;
+	  mainPal[p][(i)*3+2]=i;
+	} // grays 32
+	for(int i=0;i<63+32;i++){
+	  mainPal[p][96+i*3]=63;
+	  mainPal[p][96+i*3+1]=i*0.65;
+	  mainPal[p][96+i*3+2]=21;
+	} // fire 96
+	mainPal[p][384-3]=63;
+	mainPal[p][384-2]=63;
+	mainPal[p][384-1]=63;
+	// white 1
+	for(int i=0;i<64;i++){
+	  mainPal[p][384+i*3]=16;
+	  mainPal[p][384+i*3+1]=i;
+	  mainPal[p][384+i*3+2]=50;
+	} // blue 64
+	for(int i=0;i<64;i++){
+	  mainPal[p][576+i*3]=i;
+	  mainPal[p][576+i*3+1]=i;
+	  mainPal[p][576+i*3+2]=i; 
+	} // free 64
+	break;
+
+      case 1: // intro/highway
+	for(int i=0;i<64;i++){
+	  mainPal[p][(i)*3]=i;
+	  mainPal[p][(i)*3+1]=i;
+	  mainPal[p][(i)*3+2]=i;
+	} // grays 64
+	for(int i=0;i<64;i++){
+	  mainPal[p][192+i*3]=(int)(i>>2);
+	  mainPal[p][192+i*3+1]=(int)(i>>1);
+	  mainPal[p][192+i*3+2]=(int)(i>>2);
+	} // greenish 64
+	for(int i=0;i<64;i++){
+	  mainPal[p][384+i*3]=(int)(i>>2);
+	  mainPal[p][384+i*3+1]=0;
+	  mainPal[p][384+i*3+2]=16-(int)(i>>3);
+	} // sunrise 64
+	for(int i=0;i<64;i++){
+	  mainPal[p][576+i*3]=(int)(i*0.8);
+	  mainPal[p][576+i*3+1]=(int)(i*0.75);
+	  mainPal[p][576+i*3+2]=0; 
+	} // orange stripes 64
+
+	// custom colors
+	//blue light
+	mainPal[p][576]=31;
+	mainPal[p][577]=36;
+	mainPal[p][578]=63;
+	//blue dark
+	mainPal[p][576+3]=12;
+	mainPal[p][577+3]=15;
+	mainPal[p][578+3]=63;
+	//red
+	mainPal[p][576+6]=63;
+	mainPal[p][577+6]=4;
+	mainPal[p][578+6]=4;
+      break; 
+
+      case 2: // sinebars 
+	for(int i=0;i<16;i++){
+	  mainPal[p][(i)*3]=i>>1;
+	  mainPal[p][(i)*3+1]=i>>1;
+	  mainPal[p][(i)*3+2]=i>>1;
+	} // grays 16 slow
+	for(int i=0;i<96;i++){
+	  mainPal[p][48+i*3]=63;
+	  mainPal[p][48+i*3+1]=i*0.65;
+	  mainPal[p][48+i*3+2]=40;
+	} // sunset 96
+	for(int i=0;i<32;i++){
+	  mainPal[p][288+i*3]=63;
+	  mainPal[p][288+i*3+1]=56+(int)(7*sin(i*PI/63));
+	  mainPal[p][288+i*3+2]=50+(int)(13*sin(i*PI/63));
+	} // sun 64
+	for(int i=0;i<64;i++){
+	  mainPal[p][384+i*3]=16;
+	  mainPal[p][384+i*3+1]=i;
+	  mainPal[p][384+i*3+2]=50;
+	} // blue 64 - logo
+	for(int i=0;i<64;i++){
+	  mainPal[p][576+i*3]=16+(int)(16*(sin(i*PI/63)));
+	  mainPal[p][576+i*3+1]=16+(int)(32*(sin(i*PI/63)));
+	  mainPal[p][576+i*3+2]=(int)(16*(sin(i*PI/63)));
+	} // green 64
       break;
 
-    case 1: // intro/highway
-      for(int i=0;i<64;i++){
-	mainPal[(i)*3]=i;
-	mainPal[(i)*3+1]=i;
-	mainPal[(i)*3+2]=i;
-      } // grays 64
-      for(int i=0;i<64;i++){
-	mainPal[192+i*3]=(int)(i>>2);
-	mainPal[192+i*3+1]=(int)(i>>1);
-	mainPal[192+i*3+2]=(int)(i>>2);
-      } // greenish 64
-      for(int i=0;i<64;i++){
-	mainPal[384+i*3]=(int)(i>>2);
-	mainPal[384+i*3+1]=0;
-	mainPal[384+i*3+2]=16-(int)(i>>3);
-      } // sunrise 64
-      for(int i=0;i<64;i++){
-	mainPal[576+i*3]=(int)(i*0.8);
-	mainPal[576+i*3+1]=(int)(i*0.75);
-	mainPal[576+i*3+2]=0; 
-      } // orange stripes 64
+      case 3: // spirtals 
+	for(int i=0;i<64;i++){
+	  mainPal[p][(i)*3]=i;
+	  mainPal[p][(i)*3+1]=i;
+	  mainPal[p][(i)*3+2]=i;
+	} // grays 64
+	for(int i=0;i<64;i++){
+	  mainPal[p][192+i*3]=(int)(i>>2);
+	  mainPal[p][192+i*3+1]=(int)(i>>2);
+	  mainPal[p][192+i*3+2]=(int)(i>>1);
+	} // light plume 64
+	for(int i=0;i<64;i++){
+	  mainPal[p][384+i*3]=(int)(i>>2);
+	  mainPal[p][384+i*3+1]=0;
+	  mainPal[p][384+i*3+2]=(int)(i>>1);
+	} // dark plume 64
+	for(int i=0;i<64;i++){
+	  mainPal[p][576+i*3]=0;
+	  mainPal[p][576+i*3+1]=(int)(54*sin(i*PI/63));
+	  mainPal[p][576+i*3+2]=(int)(64*sin(i*PI/63)); 
+	} // blue gradient 64
+      break;
 
-      // custom colors
-      //blue light
-      mainPal[576]=31;
-      mainPal[577]=36;
-      mainPal[578]=63;
-      //blue dark
-      mainPal[576+3]=12;
-      mainPal[577+3]=15;
-      mainPal[578+3]=63;
-      //red
-      mainPal[576+6]=63;
-      mainPal[577+6]=4;
-      mainPal[578+6]=4;
-    break; 
+      case 4: // outro 
+	for(int i=0;i<64;i++){
+	  mainPal[p][(i)*3]=i;
+	  mainPal[p][(i)*3+1]=i;
+	  mainPal[p][(i)*3+2]=(int)(64*sin(i*PI/63));
+	} // grays 64
+	for(int i=0;i<64;i++){
+	  mainPal[p][192+i*3]=(int)(64*sin(i*PI/63));
+	  mainPal[p][192+i*3+1]=(int)(64*sin(i*PI/63));
+	  mainPal[p][192+i*3+2]=i;
+	} //  64
+	for(int i=0;i<64;i++){
+	  mainPal[p][384+i*3]=(int)(64*sin(i*PI/63));
+	  mainPal[p][384+i*3+1]=i;
+	  mainPal[p][384+i*3+2]=(int)(64*sin(i*PI/63));
+	} //  64
+	for(int i=0;i<64;i++){
+	  mainPal[p][576+i*3]=i;
+	  mainPal[p][576+i*3+1]=(int)(64*sin(i*PI/63));
+	  mainPal[p][576+i*3+2]=(int)(64*sin(i*PI/63)); 
+	} //  64
+      break;
 
-    case 2: // sinebars 
-      for(int i=0;i<16;i++){
-	mainPal[(i)*3]=i>>1;
-	mainPal[(i)*3+1]=i>>1;
-	mainPal[(i)*3+2]=i>>1;
-      } // grays 16 slow
-      for(int i=0;i<96;i++){
-	mainPal[48+i*3]=63;
-	mainPal[48+i*3+1]=i*0.65;
-	mainPal[48+i*3+2]=40;
-      } // sunset 96
-      for(int i=0;i<32;i++){
-	mainPal[288+i*3]=63;
-	mainPal[288+i*3+1]=56+(int)(7*sin(i*PI/63));
-	mainPal[288+i*3+2]=50+(int)(13*sin(i*PI/63));
-      } // sun 64
-      for(int i=0;i<64;i++){
-	mainPal[384+i*3]=16;
-	mainPal[384+i*3+1]=i;
-	mainPal[384+i*3+2]=50;
-      } // blue 64 - logo
-      for(int i=0;i<64;i++){
-	mainPal[576+i*3]=16+(int)(16*(sin(i*PI/63)));
-	mainPal[576+i*3+1]=16+(int)(32*(sin(i*PI/63)));
-	mainPal[576+i*3+2]=(int)(16*(sin(i*PI/63)));
-      } // green 64
-    break;
+      case 5: // unknown
+	for(int i=0;i<64;i++){
+	  mainPal[p][(i)*3]=(int)(16*sin(i*PI/63));
+	  mainPal[p][(i)*3+1]=(int)(16*sin(i*PI/63));
+	  mainPal[p][(i)*3+2]=(int)(32*sin(i*PI/63));
+	} //  64
+	for(int i=0;i<64;i++){
+	  mainPal[p][192+i*3]=(int)(32*sin(i*PI/63));
+	  mainPal[p][192+i*3+1]=0;
+	  mainPal[p][192+i*3+2]=(int)(16*sin(i*PI/63));
+	} //  64
 
-    case 3: // outro 
-      for(int i=0;i<64;i++){
-	mainPal[(i)*3]=i;
-	mainPal[(i)*3+1]=i;
-	mainPal[(i)*3+2]=i;
-      } // grays 64
-      for(int i=0;i<64;i++){
-	mainPal[192+i*3]=(int)(i>>2);
-	mainPal[192+i*3+1]=(int)(i>>2);
-	mainPal[192+i*3+2]=(int)(i>>1);
-      } // bluenish 64
-      for(int i=0;i<64;i++){
-	mainPal[384+i*3]=(int)(i>>2);
-	mainPal[384+i*3+1]=0;
-	mainPal[384+i*3+2]=(int)(i>>1);
-      } // sunrise 64
-      for(int i=0;i<64;i++){
-	mainPal[576+i*3]=0;
-	mainPal[576+i*3+1]=(int)(i*0.75);
-	mainPal[576+i*3+2]=(int)(i*0.8); 
-      } // 64
-    break;
+	for(int i=0;i<64*2;i++){
+	  mainPal[p][384+i*3]=0;
+	  mainPal[p][384+i*3+1]=0;
+	  mainPal[p][384+i*3+2]=0;
+	}
+      break;
+    }
+
   }
-  updatePalette();
+  updatePalette(0);
 }
 
 void colorCycle(int start, int end){
   int startIndex = start*3;
   int endIndex = end*3;
   int lastColor[3] = {
-    mainPal[endIndex-3],
-    mainPal[endIndex-2],
-    mainPal[endIndex-1]
+    mainPal[palBank][endIndex-3],
+    mainPal[palBank][endIndex-2],
+    mainPal[palBank][endIndex-1]
   };
   for(int i=endIndex-1;i>startIndex+2;i-=3){
-    mainPal[i] = mainPal[i-3];
-    mainPal[i-1] = mainPal[i-4];
-    mainPal[i-2] = mainPal[i-5];
+    mainPal[palBank][i] = mainPal[palBank][i-3];
+    mainPal[palBank][i-1] = mainPal[palBank][i-4];
+    mainPal[palBank][i-2] = mainPal[palBank][i-5];
   }
 
-  mainPal[startIndex] = lastColor[0];
-  mainPal[startIndex+1] = lastColor[1];
-  mainPal[startIndex+2] = lastColor[2];
+  mainPal[palBank][startIndex] = lastColor[0];
+  mainPal[palBank][startIndex+1] = lastColor[1];
+  mainPal[palBank][startIndex+2] = lastColor[2];
 
-  updatePalette();
+  updatePalette(palBank);
 }
 
 // SFX
 
-void sfxStart(float sound){
+void sfxStart(float sound){ 
   if(sound>10.0f){
     float sfxSound = sound;
     int sfxFreq = (int)(1193180/sfxSound);
@@ -384,6 +435,23 @@ void playTune(float timer, float dt){
 
 // VFX
 
+
+
+void drawCPU(int x, int y){
+  // PACKAGE
+  drawLineH(x-35,x+35,y,30);
+  for(int i=0;i<=6;i++) drawLineH(x-35-(int)(i>>1),x+35+(int)(i>>1),y+i,12+i);
+  drawLineH(x-36,x+36,y+4,28);
+  drawLineH(x-37,x+37,y+7,6);
+  // DIE
+  drawRectangle(x-16,y-1,x+16,y+1,0);
+  // PINS
+  drawLineH(x-34,x+34,y+8,220); 
+  for(int p=-30;p<=30;p+=5){
+    drawRectangle(x+p-1,y+9,x+p+1,y+10,240);
+  }
+}
+
 void addFire(unsigned int t, int w, int h){
     int shiftX = 160-(w/2);
     int shiftY = 100-(h/2);
@@ -417,7 +485,7 @@ void animFire(int w, int h){
       value += buffer[((+y + 2) % SCREEN_WIDTH) * SCREEN_WIDTH + (x)];
 
       if(value>0.0f){
-	value /= 4.0525;
+	value /= 4.0525f;
 
 	color = (int)value%128;
 	safeX = x%SCREEN_WIDTH;
@@ -429,31 +497,23 @@ void animFire(int w, int h){
 }
 
 void drawFire(float t, int w, int h) {
+
   addFire((int)t,w/2,h);
   animFire(w,h); 
 }
 
-void drawCPU(int x, int y){
-  // PACKAGE
-  drawLineH(x-35,x+35,y,30);
-  for(int i=0;i<=6;i++) drawLineH(x-35-(int)(i>>1),x+35+(int)(i>>1),y+i,12+i);
-  drawLineH(x-36,x+36,y+4,28);
-  drawLineH(x-37,x+37,y+7,6);
-  // DIE
-  drawRectangle(x-16,y-1,x+16,y+1,0);
-  // PINS
-  drawLineH(x-34,x+34,y+8,220); 
-  for(int p=-30;p<=30;p+=5){
-    drawRectangle(x+p-1,y+9,x+p+1,y+10,240);
-  }
-}
-
 void initFireplace(){
   for (int y=0; y<SCREEN_HEIGHT; y++){
-    memcpy(buffer+y*SCREEN_WIDTH, lineBuffer[3], SCREEN_WIDTH);
+    memcpy(buffer+y*SCREEN_WIDTH, lineBuffer[1], SCREEN_WIDTH);
   }
-  drawRectangle(CENTER_X-22,0,CENTER_X+22,SCREEN_HEIGHT,0);
+  for(int y=24;y<SCREEN_HEIGHT-24;y+=8){
+    int x=160+(int)(64*sin(y*4.6f));
+    int size=14+(int)(8*cos(y*4.7f));
+    drawRectangle(x-size,y-size,x+size,y+size,128+(y%64));
+  }
+  drawRectangle(CENTER_X-22,0,CENTER_X+22,SCREEN_HEIGHT-32,0);
   drawCPU(CENTER_X, 148);
+
 }
 
 
@@ -675,14 +735,14 @@ void drawStats(float time, float deltaTime){
     drawPalette();
 }
 
-void drawIntro(float t){
+void drawIntro(float timer){
   const char* text = "P 1 X";
   drawStringOnBuffer(text,135,100,63,1,FONT_COLOR,-1);
 }
 
-void drawFloor(){
+void initFloorBuffer(){
   int x,y;
-  float fov=200;
+  float fov=250;
   int color=64;
 
   for(y=0;y<100;y++){
@@ -694,38 +754,95 @@ void drawFloor(){
       if(fy<0) fy=-fy+1;
       int c=color+(int)(63*sin((z)*PI/320));
       if((int)fx%2==(int)fy%2) c+=64;
-      drawPixel(CENTER_X+x,CENTER_Y+y,c);
+
+      int screenX = CENTER_X+x;
+      int screenY = y;
+      floorBuffer[(screenY<<8)+(screenY<<6)+screenX] = (unsigned char)c;
     }
   }
 }
 
-void initOutro(){
-  int half=(SCREEN_WIDTH*SCREEN_HEIGHT)/2;
+void drawTunnel(){
+  int size=(SCREEN_WIDTH*SCREEN_HEIGHT);
+  memcpy(buffer,tunnelBuffer,size); 
+}
 
-  for(int y=-100;y<0;y++){
+void initOutro(){
+  drawTunnel();
+}
+
+void drawOutro(float timer, float st){
+  float zoom=0.1f+st*0.1f;
+  if(zoom>1.0f)zoom=1.0f;
+  float speed=0.7f;
+
+
+  int x=(int)(120*sin(timer*speed*0.7f)*zoom);
+  int y=(int)(80*cos(timer*speed*0.6f)*zoom);
+  int x2=(int)(120*sin(PI+timer*speed*0.7f)*zoom);
+  int y2=(int)(80*cos(PI+timer*speed*0.6f)*zoom);
+  drawSprite((int)(timer)%16,160+x,100+y);
+  drawSprite((int)(timer)%16,160+x2,100+y2); 
+}
+
+void drawFloor(){
+  int half=(SCREEN_WIDTH*SCREEN_HEIGHT)>>1;
+  memcpy(buffer+half,floorBuffer,half); 
+}
+
+void initTunnelToBuffer(){
+  for(int y=-100;y<100;y++){
     for(int x=-160;x<160;x++){
-      float a=(atan2(y,x)+PI)*80.0f;
-      float d=999/sqrt(x*x+y*y+1);
-      int c=192+(int)(a+d)%64;
-      drawPixel(CENTER_X+x,CENTER_Y+y,c);
+      int screenX = CENTER_X+x;
+      int screenY = CENTER_Y+y;
+      float a=(atan2(y,x)+PI)*30.0f;
+      float d=998/sqrt(x*x+y*y+1);
+      int color=192+(int)(a+d)%63;
+      tunnelBuffer[(screenY<<8)+(screenY<<6)+screenX] = (unsigned char)color;
     }
   }
-  drawFloor();
-  memcpy(halfBuffer,buffer+half,half); 
+}
+
+void initUnknown(){
+  int x,y;
+  float fov=60;
+
+
+  for(y=-100;y<100;y++){
+      int yy=y;
+      if(y<0){
+	yy*=-1;
+      }
+      float z=yy; if(z==0)z=0.0001f;
+      float fy = fov/z;
+      if(fy<0) fy=-fy+1;
+      int c=(int)(64*sin((z)*PI/200));
+      if((int)y>0) c+=64;
+      int screenY = CENTER_Y+y;
+      memset(buffer+screenY*SCREEN_WIDTH,c,SCREEN_WIDTH);
+  }
+}
+
+void initSpirals(){
+  int half=(SCREEN_WIDTH*SCREEN_HEIGHT)>>1;
+  memcpy(buffer+half,floorBuffer,half);
 }
 
 void drawSpirals(float timer){
   int half=SCREEN_WIDTH*SCREEN_HEIGHT/2;
-  memcpy(buffer+half,halfBuffer,half);
-  for(int i=0;i<32;i++){
-    float s = i*0.1f;
-    drawPixel(160+(int)(80*sin(s+timer*1.7f)),150+(int)(24*cos(s+timer*1.6f)),4+i*1.5);
-    float s2=s-0.025f;
-    drawPixel(160+(int)(80*sin(s2+timer*1.7f)),150+(int)(24*cos(s2+timer*1.6f)),4+i*1.5f-2);
-    float s3=s-0.05f;
-    drawPixel(160+(int)(80*sin(s3+timer*1.7f)),150+(int)(24*cos(s3+timer*1.6f)),4+i*1.5f-3);
-
-    drawPixel(160+(int)(100*sin(-i-timer*1.3f)),150+(int)(32*cos(-i-timer*1.8f)),192+i*2);
+  memcpy(buffer+half,floorBuffer,half);
+  for(int i=0;i<64;i++){
+    if(i<32){
+      float s = i*0.1f;
+      drawPixel(160+(int)(80*sin(s+timer*1.7f)),150+(int)(24*cos(s+timer*1.6f)),4+i*1.5);
+      float s2=s-0.025f;
+      drawPixel(160+(int)(80*sin(s2+timer*1.7f)),150+(int)(24*cos(s2+timer*1.6f)),4+i*1.5f-2);
+      float s3=s-0.05f;
+      drawPixel(160+(int)(80*sin(s3+timer*1.7f)),150+(int)(24*cos(s3+timer*1.6f)),4+i*1.5f-3);
+    }
+    for(int j=0;j<32;j+=2){
+      drawPixel(160+(int)(100*sin(-j-(i*PI/32)-timer*1.3f)),132+j+(int)(28*cos(-j-(i*PI/32)-timer*1.8f)),192+(int)(64*sin(i*PI/63)));
+    }
   }
 }
 
@@ -884,8 +1001,10 @@ void waitForVRetraceStart(){
 int main() {
   setGraphicsMode();
   sfxStop();
-  initPalette(0);
+  initPalette();
   initLineBuffer();
+  initTunnelToBuffer();
+  initFloorBuffer();
   initStars();
   for(int i=0;i<16;i++) initSprite(i,16+(int)((i*PI/96)*96));
   int textPosition = SCREEN_WIDTH;
@@ -897,6 +1016,7 @@ int main() {
   int debugLinePos = CENTER_Y;
   float dt = 1.0f;
   float timer = DEMO_START;
+  float sceneTimer = 0;
   float transitionIn = 0.0f;
   float transitionOut = 0.0f;
   bool redraw = true;
@@ -913,9 +1033,10 @@ int main() {
       case DEMO_INTRO:
 	if(DEMO_SCENE==DEMO_INTRO) break;
 	memset(buffer, 0, sizeof(buffer));
+	sceneTimer=0;
 	redraw=true;
 	transitionIn=100;
-	initPalette(1);
+	updatePalette(1);
 	DEMO_SCENE=DEMO_INTRO;
 	break;
       case DEMO_HIGHWAY-FADE_TIME:
@@ -924,8 +1045,9 @@ int main() {
       case DEMO_HIGHWAY: 
 	if(DEMO_SCENE==DEMO_HIGHWAY) break;
 	memset(buffer, 0, sizeof(buffer));
+	sceneTimer=0;
 	redraw=true;
-	initPalette(1);
+	updatePalette(1);
 	initHighway(horizon);
 	writerDelayCount = 0;
 	writerX = writerStart;
@@ -940,7 +1062,8 @@ int main() {
 	if(DEMO_SCENE==DEMO_FIREPLACE) break;
 	memset(buffer, 0, sizeof(buffer));
 	redraw=true;
-	initPalette(0);
+	sceneTimer=0;
+	updatePalette(0);
 	initFireplace();
 	writerDelayCount = 0;
 	writerX = writerStart;
@@ -956,19 +1079,58 @@ int main() {
 	if(DEMO_SCENE==DEMO_SINEBARS) break;
 	memset(buffer,0, sizeof(buffer));
 	redraw=true;
+	sceneTimer=0;
 	transitionIn=100;
-	initPalette(2);
+	updatePalette(2);
 	textPosition = SCREEN_WIDTH;
 	DEMO_SCENE=DEMO_SINEBARS;
 	break;
-      case DEMO_OUTRO-FADE_TIME:
+      case DEMO_SPIRALS-FADE_TIME:
 	transitionOut=100;
 	break;
+
+      case DEMO_SPIRALS:
+	if(DEMO_SCENE==DEMO_SPIRALS) break;
+	memset(buffer, 0, sizeof(buffer));
+	redraw=true;
+	sceneTimer=0;
+	updatePalette(3);
+	initSpirals();
+	writerDelayCount = 0;
+	writerX = writerStart;
+	writerY = 25;
+	writerIndex = 0;
+	DEMO_SCENE=DEMO_SPIRALS;
+	break;
+
+      case DEMO_UNKNOWN -FADE_TIME:
+	transitionOut=100;
+	break;
+
+      case DEMO_UNKNOWN:
+	if(DEMO_SCENE==DEMO_OUTRO) break;
+	memset(buffer, 0, sizeof(buffer));
+	redraw=true;
+	sceneTimer=0;
+	updatePalette(5);
+	initUnknown();
+	writerDelayCount = 0;
+	writerX = writerStart;
+	writerY = 25;
+	writerIndex = 0;
+	DEMO_SCENE=DEMO_UNKNOWN;
+	break;
+
+      case DEMO_OUTRO -FADE_TIME:
+	transitionOut=100;
+	break;
+
       case DEMO_OUTRO:
 	if(DEMO_SCENE==DEMO_OUTRO) break;
 	memset(buffer, 0, sizeof(buffer));
 	redraw=true;
-	initPalette(3);
+	sceneTimer=0;
+	updatePalette(4);
 	initOutro();
 	writerDelayCount = 0;
 	writerX = writerStart;
@@ -976,10 +1138,12 @@ int main() {
 	writerIndex = 0;
 	DEMO_SCENE=DEMO_OUTRO;
 	break;
+
       case DEMO_END:
 	memset(buffer, 0, sizeof(buffer));
 	DEMO_SCENE=DEMO_START;
-	timer = DEMO_START;
+	timer = 0;
+	sceneTimer= 0;
 	sfxLastTimer = 0;
 	sfxNoteIndex = dt;
 	sfxStop();
@@ -1005,6 +1169,7 @@ int main() {
 	case DEMO_FIREPLACE: 
 	  drawFire(timer,32,96);
 	  drawTypewriter(WORKHARD,dt,127,1);
+	  colorCycle(128,192);
 	  break;
 
 	case DEMO_SINEBARS: 
@@ -1019,11 +1184,24 @@ int main() {
 	  colorCycle(192,256);
 	  break;
 
-	case DEMO_OUTRO:
+	case DEMO_SPIRALS:
 	  drawTypewriter(GREETZ,dt,63,1);
 	  drawSpirals(timer);
 	  colorCycle(192,256);
 	break;
+
+	case DEMO_UNKNOWN:
+	  colorCycle(0,64);
+	  colorCycle(64,128);
+	break;
+
+	case DEMO_OUTRO:
+	  //drawTypewriter(ENDING,dt,63,1); 
+	  drawOutro(timer,sceneTimer);
+	  colorCycle(0,128);
+	  colorCycle(128,255); 
+	break;
+
       }
     }
 
@@ -1065,10 +1243,17 @@ int main() {
     }
 
     timer+=dt;
+    sceneTimer+=dt;
   }
 
   sfxStop();
-  //delete[] buffer;
+  delete[] buffer;
+  delete[] floorBuffer;
+  delete[] tunnelBuffer;
+  delete[] lineBuffer;
+  delete[] mainPal;
+  delete[] sprite;
+
   setTextMode();
   return 0;
 }
