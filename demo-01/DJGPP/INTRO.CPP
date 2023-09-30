@@ -69,7 +69,6 @@ Vert vfx_moths_mem[VFX_MOTHS_MAX];
 int scene_intro_cycle = 0;
 
 
-
 void hw_set_video_mode(unsigned char mode);
 float hw_delta_time_get();
 void hw_wait_for_vretrace_start();
@@ -129,6 +128,74 @@ void hw_wait_for_vretrace(){
   while(inp(0x3DA)&8);
   while(!(inp(0x3DA)&8));
 }
+
+
+/*
+ * SYSTEM HELPERS
+ */
+void sys_frame_ms_draw(Timer timer){
+  char timer_demo_str[20];
+  char timer_delta_str[20];
+  char timer_scene_str[20];
+
+  sprintf(timer_demo_str,"%.1f",timer.demo);
+  sprintf(timer_scene_str,"%.1f",timer.scene);
+  sprintf(timer_delta_str,"%.2f",timer.dt*1000);
+
+  const char* timer_demo = timer_demo_str;
+  const char* timer_scene = timer_scene_str;
+  const char* timer_delta = timer_delta_str;
+
+  gfx_rectangle_draw(2,2,48,32,8);
+  font_string_render(timer_delta,4,4,63,1,FONT_COLOR);
+  font_string_render(timer_scene,4,13,63,1,FONT_COLOR);
+  font_string_render(timer_demo,4,22,63,1,FONT_COLOR);
+};
+
+
+/* 
+ * FONT
+ */
+void font_char_render(char ch, int x, int y, int color, int scale, int mode){
+  const int char_index =  ch - '!';
+  if (char_index == -1) return;
+  
+  const int LEFT = -(int)scale*0.5;
+  int gradient_pos = 0;
+  int j,i,fx,fy,posx,posy,c;
+  
+  for (j=0; j<FONT_SIZE; j++){
+    for (i=0; i<FONT_SIZE; i++){
+      if ( font_data[char_index][j] & (0x80>>i)){
+        for(fy=LEFT;fy<scale;++fy){
+          for(fx=LEFT;fx<scale;++fx){
+            posx = x+scale*i+fx;
+            posy = y+scale*j+fy;
+            if(posx>0 & posx<WIDTH){
+              c = color;
+              if(mode==FONT_GRADIENT){
+               c = (color+gradient_pos-LEFT+fy)%255;
+              }
+              buffer[(posy<<8)+(posy<<6)+posx] = c;
+            }
+          }
+        }
+      }
+    }
+    gradient_pos+=FONT_SIZE;
+  }
+}
+
+void font_string_render(const char* str, int x, int y, int color, int scale, int mode){
+  int pos = x;
+
+  while(*str){
+    font_char_render(*str,pos,y,color,scale,mode);
+    pos+=FONT_SIZE*scale+1;
+    str++;
+  }
+}
+
 
 /*
  * GFX (2D DRAWING PRIMITIVES)
@@ -240,27 +307,8 @@ void palette_draw_preview() {
 }
 
 
-void sys_frame_ms_draw(Timer timer){
-  char timer_demo_str[20];
-  char timer_delta_str[20];
-  char timer_scene_str[20];
-
-  sprintf(timer_demo_str,"%.1f",timer.demo);
-  sprintf(timer_scene_str,"%.1f",timer.scene);
-  sprintf(timer_delta_str,"%.2f",timer.dt*1000);
-
-  const char* timer_demo = timer_demo_str;
-  const char* timer_scene = timer_scene_str;
-  const char* timer_delta = timer_delta_str;
-
-  gfx_rectangle_draw(2,2,48,32,8);
-  font_string_render(timer_delta,4,4,63,1,FONT_COLOR);
-  font_string_render(timer_scene,4,13,63,1,FONT_COLOR);
-  font_string_render(timer_demo,4,22,63,1,FONT_COLOR);
-};
-
 /*
- * VFX / SCENES
+ * VISUAL EFFECTS
  */
 Vert vfx_stars_get_one(){
     int size = (int)VFX_STARS_MAX_Z<<1;
@@ -344,57 +392,16 @@ void vfx_moths_render(float timer, int extra){
     y=(int)(sy/sz*FOV+CY);
 
     if(x>0 && x<WIDTH && y>0 && y<HEIGHT){    
-        buffer[(y<<8)+(y<<6)+x] = 63-(int)(60*(sin(sz*PI/(VFX_STARS_MAX_Z*2))));
+      buffer[(y<<8)+(y<<6)+x] = 63-(int)(60*(sin(sz*PI/(VFX_STARS_MAX_Z*2))));
 
-       if(extra>0 && x>4 && x<WIDTH-4 && y>4){
-         buffer[((y)<<8)+((y)<<6)+x-2]=(int)(i+timer*100)%24>12?32:6;
-         buffer[((y)<<8)+((y)<<6)+x+2]=(int)(i+timer*100)%24>12?6:32;
-       }
-    }
-  }
-}
-
-
-
-void font_char_render(char ch, int x, int y, int color, int scale, int mode){
-  const int char_index =  ch - '!';
-  if (char_index == -1) return;
-  
-  const int LEFT = -(int)scale*0.5;
-  int gradient_pos = 0;
-  int j,i,fx,fy,posx,posy,c;
-  
-  for (j=0; j<FONT_SIZE; j++){
-    for (i=0; i<FONT_SIZE; i++){
-      if ( font_data[char_index][j] & (0x80>>i)){
-		for(fy=LEFT;fy<scale;++fy){
-		  for(fx=LEFT;fx<scale;++fx){
-			posx = x+scale*i+fx;
-			posy = y+scale*j+fy;
-			if(posx>0 & posx<WIDTH){
-			  c = color;
-			  if(mode==FONT_GRADIENT){
-			   c = (color+gradient_pos-LEFT+fy)%255;
-			  }
-			  buffer[(posy<<8)+(posy<<6)+posx] = c;
-			}
-		  }
-		}
+      if(extra>0 && x>4 && x<WIDTH-4 && y>4){
+       buffer[((y)<<8)+((y)<<6)+x-2]=(int)(i+timer*100)%24>12?32:6;
+       buffer[((y)<<8)+((y)<<6)+x+2]=(int)(i+timer*100)%24>12?6:32;
       }
     }
-    gradient_pos+=FONT_SIZE;
   }
 }
 
-void font_string_render(const char* str, int x, int y, int color, int scale, int mode){
-  int pos = x;
-
-  while(*str){
-    font_char_render(*str,pos,y,color,scale,mode);
-    pos+=FONT_SIZE*scale+1;
-    str++;
-  }
-}
 
 void vfx_sinetext_render(char *string, float dt, float timer, int x, int y, int color, int bg){
   float speed = 240.0f;
@@ -429,6 +436,7 @@ void vfx_aa_apply(int start, int end){
     }
   }
 }
+
 
 /*
  * SPRITES
@@ -500,6 +508,9 @@ void scene_intro_render(Timer timer){
   }
 }
 
+/*
+ * SCENES
+ */
 void scene_intro_reset(){
   scene_intro_init();
 }
@@ -531,73 +542,83 @@ void scene_outro_render(Timer timer){
  * MAIN LOOP
  */
 int main() {
-    Timer timer={0,0,0};
-    hw_set_video_mode(0x13);
+  Timer timer={0,0,0};
+  hw_set_video_mode(0x13);
 
-    // MAIN LOOP
-    while(1){
-        /*
-         * KEYBOARD
-         */
-        if (kbhit()) break;
+  // MAIN LOOP
+  while(1){
+    /*
+     * KEYBOARD
+     */
+    if (kbhit()) break;
 
-        /*
-         * DRAW SCENE
-         */
-        memset(buffer, 4, PIXELS);
+    /*
+     * DRAW SCENE
+     */
+    memset(buffer, 4, PIXELS);
 
-        if((int)timer.scene==screenplay[current_scene].length){
-          current_scene++;
-          timer.scene=0.0f;
-          palette_set(screenplay[current_scene].palette);
-          switch(screenplay[current_scene].id){
-           case 1:
-             scene_intro_init();
-             break;
-           case 2:
-             scene_moths_init();
-             break;
-           case 8:
-             scene_outro_init();
-             break;
-          }
+    
+    /*
+     * SCENE SWITCHER
+     */
+    if((int)timer.scene==screenplay[current_scene].length){
+      current_scene++;
+      timer.scene=0.0f;
+      palette_set(screenplay[current_scene].palette);
+      switch(screenplay[current_scene].id){
+       case 1:
+         scene_intro_init();
+         break;
+       case 2:
+         scene_moths_init();
+         break;
+       case 8:
+         scene_outro_init();
+         break;
+      }
 
-          if(current_scene>(sizeof(screenplay)/sizeof(Scene))){
-            current_scene=0;
-            timer.demo=0.0f;
-          }
-        }
-
-        switch(screenplay[current_scene].id){
-          case 1:
-            scene_intro_render(timer);
-            break;
-          case 2:
-            scene_moths_render(timer);
-            break;
-          case 8:
-            scene_outro_render(timer);
-            break;
-        }
-
-        palette_draw_preview();
-        sys_frame_ms_draw(timer);
-
-        /*
-         * BLIP VGA SCREEN
-         */
-        dosmemput(buffer,PIXELS,0xA0000);
-
-        /*
-         * TIMERS
-         */
-        hw_wait_for_vretrace();
-        timer.dt = hw_delta_time_get();
-        timer.demo+=timer.dt;
-        timer.scene+=timer.dt;
+      if(current_scene>(sizeof(screenplay)/sizeof(Scene))){
+        current_scene=0;
+        timer.demo=0.0f;
+      }
     }
-    hw_set_video_mode(0x03);
 
-    return 0;
+    /*
+     * SCENE RENDERER
+     */
+    switch(screenplay[current_scene].id){
+      case 1:
+        scene_intro_render(timer);
+        break;
+      case 2:
+        scene_moths_render(timer);
+        break;
+      case 8:
+        scene_outro_render(timer);
+        break;
+    }
+
+    /*
+     * DEBUG
+     */
+    palette_draw_preview();
+    sys_frame_ms_draw(timer);
+
+    /*
+     * BLIP VGA SCREEN
+     */
+    dosmemput(buffer,PIXELS,0xA0000);
+
+    /*
+     * TIMERS
+     */
+    hw_wait_for_vretrace();
+    timer.dt = hw_delta_time_get();
+    timer.demo+=timer.dt;
+    timer.scene+=timer.dt;
+  }
+
+  hw_set_video_mode(0x03);
+  return 0;
 }
 
