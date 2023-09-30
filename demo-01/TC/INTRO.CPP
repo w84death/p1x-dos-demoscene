@@ -1,17 +1,20 @@
 /*
  * P1X DOS DEMO-01
  * 
- * Made in RHIDE, DJGPP, UPX
+ * Made in RHIDE, DJGPP
+ * upx intro.exe
  * 
  * (c)2023.9 Krzysztof Krystian Jankowski
  * http(s)://krzysztofjankowski.com
 */
 
 #include <stdio.h>
-#include <cstring>
+#include <string.h>
+#include <alloc.h>
+#include <stdlib.h>
+#include <memory.h>
 #include <dos.h>
 #include <conio.h>
-#include <dpmi.h>
 #include <math.h>
 #include "font.h"
 
@@ -28,15 +31,14 @@
 #define FONT_GRADIENT   2
 #define FONT_TRANS      3
 
-#define SCENES          9
 #define VFX_STARS_MAX   300
 #define VFX_STARS_MAX_Z 500.0f
 #define VFX_MOTHS_MAX   150
 
 const float TARGET_FRAME_TIME=1.0f/70.0f;
 const float ASPECT_RATIO=(4.0f/3.0f)/((float)WIDTH/(float)HEIGHT);
-unsigned char buffer[PIXELS]={0};
-unsigned char buffer2[PIXELS]={0};
+unsigned char far *buffer=(unsigned char far *) farmalloc(PIXELS);
+unsigned char far *buffer2=(unsigned char far *) farmalloc(PIXELS);
 
 struct Color {
         unsigned char r;
@@ -63,16 +65,18 @@ struct Vert {
   float x,y,z,speed;
 };
 
-Scene screenplay[SCENES] = {
+Scene screenplay[] = {
   {0,"...",0.0f,0},
   {1,"INTRO",10.0f,0},
-  {2,"HIGHWAY",18.0f,1},
-  {3,"MOTHS",10.0f,0},
-  {4,"FIREPLACE",2.0f,2},
-  {5,"SNAKE",2.0f,3},
-  {6,"SPIRALS",2.0f,4},
-  {7,"MOON",2.0f,5},
-  {8,"OUTRO",2.0f,0}
+  {2,"MOTHS",20.0f,0},
+  {8,"OUTRO",4.0f,0}
+  /*
+  {"HIGHWAY",14.0f,1},
+  {"FIREPLACE",24.0f,0},
+  {"SNAKE",14.0f,2},
+  {"SPIRALS",10.0f,3},
+  {"MOON",22.0f,5},
+  */
 };
 
 int current_scene=0;
@@ -122,9 +126,11 @@ void scene_outro_render(Timer timer);
  * --------------------------------------------------------- VGA
  */
 void hw_set_video_mode(unsigned char mode) {
-    __dpmi_regs regs;
-    regs.x.ax=mode;
-    __dpmi_int(0x10,&regs);
+  asm {
+    mov ah,0x00
+    mov al,mode
+    int 0x10
+  }
 }
 
 float hw_delta_time_get(){
@@ -163,10 +169,10 @@ void sys_frame_ms_draw(Timer timer){
   const char* timer_scene = timer_scene_str;
   const char* timer_delta = timer_delta_str;
 
-  gfx_rectangle_draw(WIDTH-50,2,WIDTH-2,32,8);
-  font_string_render(timer_delta,WIDTH-48,4,63,1,FONT_COLOR);
-  font_string_render(timer_scene,WIDTH-48,13,63,1,FONT_COLOR);
-  font_string_render(timer_demo,WIDTH-48,22,63,1,FONT_COLOR);
+  gfx_rectangle_draw(2,2,48,32,8);
+  font_string_render(timer_delta,4,4,63,1,FONT_COLOR);
+  font_string_render(timer_scene,4,13,63,1,FONT_COLOR);
+  font_string_render(timer_demo,4,22,63,1,FONT_COLOR);
 };
 
 
@@ -228,16 +234,16 @@ void gfx_line_simple_draw(int x1, int x2, int y, int color){
     x1 = x2;
     x2 = temp;
   }
-  memset(buffer+((y<<8)+(y<<6)+x1),(unsigned char)color, x2-x1+1);
+  _fmemset(buffer+((y<<8)+(y<<6)+x1),(unsigned char)color, x2-x1+1);
 }
 
 void gfx_rectangle_draw(int x1, int y1, int x2, int y2, int color){
-  unsigned char *startOffset;
+  unsigned char far *startOffset;
   int width;
   startOffset = buffer+( (y1<<8)+(y1<<6))+x1;
   width = 1+x2-x1;
   while(y1++<=y2){
-    memset((unsigned char *)startOffset,(unsigned char)color,width);
+    _fmemset((unsigned char *)startOffset,(unsigned char)color,width);
     startOffset+=320;
   }
 }
@@ -271,7 +277,7 @@ void palette_hw_color_update(int index, Color pal) {
 void palette_set(int bank_id){
     int i;
     switch(bank_id){
-      case 0: // INTRO, MOTHS
+      case 0: // INTRO
         for(i=0;i<64;i++){
             palette[i].r=i;
             palette[i].g=i;
@@ -292,41 +298,6 @@ void palette_set(int bank_id){
             palette[192+i].g=60-(int)(52*sin(i*PI/127));
             palette[192+i].b=60-(int)(52*sin(i*PI/127));
         }
-        break;
-      case 1: // HIGHWAY
-        for(i=0;i<64;i++){
-            palette[i].r=i;
-            palette[i].g=i;
-            palette[i].b=i;
-        }
-        for(i=0;i<64;i++){
-            palette[64+i].r=(int)(i>>2);
-            palette[64+i].g=(int)(i>>1);
-            palette[64+i].b=(int)(i>>2);
-        }
-        for(i=0;i<64;i++){
-            palette[128+i].r=(int)(i>>2);
-            palette[128+i].g=0;
-            palette[128+i].b=16-(int)(i>>3);
-        }
-        for(i=0;i<64;i++){
-            palette[192+i].r=(int)(i*0.8);
-            palette[192+i].g=(int)(i*0.75);
-            palette[192+i].b=0;
-        }
-        	// custom colors
-            //blue light
-            palette[192].r=31;
-            palette[192].g=36;
-            palette[192].b=63;
-            //blue dark
-            palette[193].r=12;
-            palette[193].g=15;
-            palette[193].b=63;
-            //red
-            palette[194].r=63;
-            palette[194].g=4;
-            palette[194].b=4;
         break;
     }
 
@@ -351,10 +322,10 @@ void palette_color_cycle(int start, int end){
 void palette_draw_preview() {
     int i;
     for (i = 0; i < 256; i++) {
-      memset(buffer+i,i,1);
+      _fmemset(buffer+i,i,1);
     }
     for (i=1;i<4;i++){
-      memcpy(buffer+i*320,buffer,256);
+      _fmemcpy(buffer+i*320,buffer,256);
     }
 }
 
@@ -364,12 +335,13 @@ void palette_draw_preview() {
  */
 Vert vfx_stars_get_one(){
     int size = (int)VFX_STARS_MAX_Z<<1;
-    return {
-        (float)(size-rand()%(size<<1)),
-        (float)(size-rand()%(size<<1)),
-        (float)(rand()%(int)VFX_STARS_MAX_Z+1),
-        (float)(20+rand()%100)
+    Vert star = {
+	(float)(size-rand()%(size<<1)),
+	(float)(size-rand()%(size<<1)),
+	(float)(rand()%(int)VFX_STARS_MAX_Z+1),
+	(float)(20+rand()%100)
     };
+    return star;
 }
 
 void vfx_stars_init(){
@@ -392,7 +364,7 @@ void vfx_stars_render(float timer){
   const int FOV=20;
   int i,x,y;
   float sx,sy,sz;
-  
+
   for (i=0;i<VFX_STARS_MAX;i++){
     sx=vfx_stars_mem[i].x;
     sy=vfx_stars_mem[i].y;
@@ -400,20 +372,21 @@ void vfx_stars_render(float timer){
     x=(int)(sx/sz*FOV+CX);
     y=(int)(sy/sz*FOV+CY);
 
-    if(x>0 && x<WIDTH && y>0 && y<HEIGHT){    
-        buffer[(y<<8)+(y<<6)+x] = 63-(int)(60*(sin(sz*PI/(VFX_STARS_MAX_Z*2))));
+    if(x>0 && x<WIDTH && y>0 && y<HEIGHT){
+	buffer[(y<<8)+(y<<6)+x] = 63-(int)(60*(sin(sz*PI/(VFX_STARS_MAX_Z*2))));
     }
   }
 }
 
 Vert vfx_moths_get_one(){
     int size = (int)VFX_STARS_MAX_Z<<1;
-    return {
-        (float)(100-rand()%200),
-        (float)(100-rand()%200),
-        (float)(10+rand()%50),
-        (float)(25+rand()%125)
+    Vert moth = {
+	(float)(100-rand()%200),
+	(float)(100-rand()%200),
+	(float)(10+rand()%50),
+	(float)(25+rand()%125)
     };
+    return moth;
 }
 
 void vfx_moths_init(){
@@ -461,9 +434,9 @@ void vfx_sinetext_render(char *string, float dt, float timer, int x, int y, int 
 
   for (int bgY=0;bgY<32;bgY++){
     int c = bg;
-    if(bgY==1 or bgY==30) c=bg+15;
-    if(bgY>2 and bgY<29) c = bg + 7 + sin(bgY+timer*bgSpeed)*7;
-    memset(buffer+WIDTH*(y+bgY),c,WIDTH);
+    if(bgY==1 || bgY==30) c=bg+15;
+    if(bgY>2 && bgY<29) c = bg + 7 + sin(bgY+timer*bgSpeed)*7;
+    _fmemset(buffer+WIDTH*(y+bgY),c,WIDTH);
   }
   
   font_string_render(string, x, y, color,2,FONT_GRADIENT);
@@ -560,8 +533,6 @@ void scene_intro_reset(){
 void scene_intro_render(Timer timer){
   const char* text = "DEMO-01";
   vfx_stars_tick(timer.dt,2.0f);
-
-  memset(buffer,4,PIXELS);
   vfx_stars_render(timer.scene);
   sprite_logo_animated_draw(120,45);
   if(timer.scene>4.0f && scene_intro_cycle<128){
@@ -569,121 +540,8 @@ void scene_intro_render(Timer timer){
     scene_intro_cycle++;
   }
   if(timer.scene>6.0f){
-    font_string_render(text,CX-(strlen(text)*FONT_SIZE>>1),170,15,1,FONT_COLOR);
+    font_string_render(text,125,170,15,1,FONT_COLOR);
   }
-}
-
-/*
- * --------------------------------------------------------- HIGHWAY
- */
-void scene_highway_init(){}
-void scene_highway_reset(){
-  const char* text = "SEPTEMBER 2023";
-  const int horizon = 80;
-  int i,y;
-  memset(buffer, 4, PIXELS);
-  for(y=0;y<horizon;y++){
-    int color = 128+(int)(y>>1);
-    if(color>191) color = 191;
-    gfx_line_simple_draw(0,WIDTH,y,color);
-  }
-
-  gfx_line_simple_draw(0,WIDTH,horizon,1);
-  font_string_render(text,CX-((strlen(text)*FONT_SIZE*2)>>1),40,170,2,FONT_COLOR);
-
-  // draw cityscape
-  for(i=20;i<300;i+=5){
-    int high=3+rand()%32*sin(i*PI/280);
-    int size=2+rand()%15;
-    gfx_rectangle_draw(i,horizon-high,i+size,horizon,0);
-  }
-}
-void sprite_car_draw(int car_x, int car_y, int wobble_size){
-  int wobble = 0;
-  int size=14;
-  int half = (size>>1);
-  int q = (size>>2);
-  int wq=0;
-  int i,y;
-  int p=0;
-  if(car_x<CX-4){
-    wobble = -(wobble_size*(CX-car_x)/CX);
-  }else if(car_x>CX+4){
-    wobble = (wobble_size*(car_x-CX)/CX);
-  }
-  for(y=car_y-size;y<car_y+5;y++){
-    int force=wobble*(car_y-y)/(size+wq);
-    int c=252;
-
-    if(i==0)      {p=15;c=192;}
-    if(i==1)      {p=16;c=193;}
-    if(i>1&&i<=4) {p=16;c=0;} //glass
-    if(i==5)      {p=20;c=193;}
-    if(i==6)      {p=21;c=193;}
-    if(i==7)      {p=22;c=192;}
-    if(i>7&&i<=10) {p=22;c=193;}
-    if(i>10&&i<=12){p=22;c=194;} // lights
-    if(i==13)     {p=23;c=63;} // bumper
-    if(i==14)     {p=24;c=63;}
-    if(i==15)     {p=23;c=50;}
-    if(i==16)     {p=22;c=4;} // bottom
-    if(i==17)     {p=21;c=4;}
-    if(i==18)     {p=19;c=14;}
-
-    gfx_line_simple_draw(car_x-p+force,car_x+p+force,y,c);
-
-    i++;
-  }
-  gfx_rectangle_draw(car_x-15,car_y+3,car_x-11,car_y+5,0);
-  gfx_rectangle_draw(car_x+11,car_y+3,car_x+15,car_y+5,0);
-  gfx_rectangle_draw(car_x-5,car_y-3,car_x+5,car_y-1,240);
-}
-
-void vfx_highway_draw(float timer, int horizon, int bottom){
-  const float road_wide = 160.0f;
-  const float stripe_wide = 10.0f;
-  const float speed = 250.0f;
-  const float bend_speed = 4.0f;
-  const float FOV=1.1f;
-  float center = CX;
-
-  for(int y=horizon;y<HEIGHT;y++){
-    float factor = FOV*(float)(y-horizon)/(bottom-horizon);
-    center = CX + (int)(32.0f*(sin(timer*bend_speed*0.2+y*0.02f)+(sin(timer*bend_speed*0.3+y*0.02f)))*factor);
-    int color = (int)(40*sin((factor*y)*PI/(HEIGHT*2)));
-    int color2 = 64+(int)(64*sin((factor*y)*PI/(HEIGHT*2)));
-    int color3 = color2+131;
-    if(color3>255)color3=255;
-    int x = (int)(center-factor*road_wide);
-    int safeX = (x>0)?x:0;
-    int x2 = (int)(center+factor*road_wide);
-    int safeX2 = (x2<WIDTH)?x2:WIDTH;
-
-    // terrain
-    if((int)((timer*speed)+(y/factor))%200>100){
-      color2 = (color2+4<128)?color2+4:127;
-    }
-    gfx_line_simple_draw(0,WIDTH,y,color2);
-
-    // road
-    gfx_line_simple_draw(safeX,safeX2,y,color);
-    if(x>0) gfx_line_simple_draw(safeX,safeX+1+(int)(factor*4.0f),y,color3);
-    if(x2<WIDTH) gfx_line_simple_draw(safeX2-1-(int)(factor*4.0f),safeX2,y,color3);
-
-    // stripes
-    x = (int)(center-factor*stripe_wide);
-    safeX = (x>0)?x:0;
-    x2 = (int)(center+factor*stripe_wide);
-    safeX2 = (x2<WIDTH)?x2:WIDTH;
-    if( (int)((timer*speed)+(y/factor))%100>50 ) gfx_line_simple_draw(safeX,safeX2,y,color3);
-  }
-
-}
-
-void scene_highway_render(Timer timer){
-    vfx_highway_draw(timer.scene,80,HEIGHT);
-    sprite_car_draw(CX+sin(timer.scene*0.9f)*36,128,14);
-//  drawTypewriter(HELLO,dt,63,1);
 }
 
 /*
@@ -691,76 +549,66 @@ void scene_highway_render(Timer timer){
  */
 void scene_moths_init(){
   vfx_moths_init();
-  memset(buffer, 4, PIXELS);
   sprite_moon_draw(CX,24);
   gfx_sphere_draw(CX,CY,32);
   vfx_aa_apply(0,200);
-  memcpy(buffer2,buffer,PIXELS);
+  _fmemcpy(buffer2,buffer,PIXELS);
 }
 void scene_moths_reset(){
   vfx_moths_init();
 }
 void scene_moths_render(Timer timer){
   vfx_moths_tick(timer.dt,timer.scene,4.0f);
-  memcpy(buffer,buffer2,PIXELS);
+  _fmemcpy(buffer,buffer2,PIXELS);
   vfx_moths_render(timer.scene,1);
 }
 
 
 /*
- * --------------------------------------------------------- FIREPLACE
+ * --------------------------------------------------------- HIGHWAY
  */
-void scene_fireplace_init(){}
-void scene_fireplace_reset(){}
-void scene_fireplace_render(Timer timer){
-  const char* text="FIREPLACE SCENE";
-  memset(buffer, 63, PIXELS);
-  font_string_render(text,24,24,15,1,FONT_COLOR);
+void scene_highway_init(){
+  const char* text = "SEPTEMBER 2023";
+  unsigned int horizon = 80;
+  unsigned char sky_color = 128;
+  unsigned char text_color = 170;
+
+  for(int y=0;y<horizon;y++){
+    int color = sky_color+(int)(y>>1);
+    if(color>191) color = 191;
+    gfx_line_simple_draw(0,WIDTH,y,color);
+  }
+
+  gfx_line_simple_draw(0,WIDTH,horizon,1);
+  font_string_render(text,CX-((strlen(text)*FONT_SIZE*2)>>1),50,text_color,2,FONT_COLOR);
+
+  // draw cityscape
+  for(int i=20;i<300;i+=5){
+    int high=3+(int)((rand()%32)*sin(i*PI/280));
+    int size=2+rand()%15;
+    gfx_rectangle_draw(i,horizon-high,i+size,horizon,0);
+  }
 }
 
-/*
- * --------------------------------------------------------- SNAKE
- */
-void scene_snake_init(){}
-void scene_snake_reset(){}
-void scene_snake_render(Timer timer){
-  const char* text="SNAKE SCENE";
-  memset(buffer, 63, PIXELS);
-  font_string_render(text,24,24,15,1,FONT_COLOR);
+void scene_highway_reset(){
+  scene_highway_init();
+}
+void scene_highway_render(Timer timer){
+//    drawHighway(timer,horizon,bottom);
+//  drawCar(CENTER_X+sin(timer*0.9f)*36,128,10);
+//  drawTypewriter(HELLO,dt,63,1);
 }
 
-
-/*
- * --------------------------------------------------------- SPIRALS
- */
-void scene_spirals_init(){}
-void scene_spirals_reset(){}
-void scene_spirals_render(Timer timer){
-  const char* text="SPIRALS SCENE";
-  memset(buffer, 63, PIXELS);
-  font_string_render(text,24,24,15,1,FONT_COLOR);
-}
-
-
-/*
- * --------------------------------------------------------- MOON
- */
-void scene_moon_init(){}
-void scene_moon_reset(){}
-void scene_moon_render(Timer timer){
-  const char* text="MOON SCENE";
-  memset(buffer, 63, PIXELS);
-  font_string_render(text,24,24,15,1,FONT_COLOR);
-}
 
 /*
  * --------------------------------------------------------- OUTRO
  */
-void scene_outro_init(){}
-void scene_outro_reset(){}
+void scene_outro_init(){
+}
+void scene_outro_reset(){
+}
 void scene_outro_render(Timer timer){
   const char* text="THE END";
-  memset(buffer, 63, PIXELS);
   font_string_render(text,CX-24,CY-4,15,1,FONT_COLOR);
 }
 
@@ -768,13 +616,14 @@ void scene_outro_render(Timer timer){
  * --------------------------------------------------------- MAIN LOOP
  */
 int main() {
+  unsigned char far *vga=(unsigned char far*) MK_FP(0xA000,0x0000);
   Timer timer={0,0,0};
   hw_set_video_mode(0x13);
-  memset(buffer, 0, PIXELS);
+
   scene_intro_init();
   scene_highway_init();
   scene_moths_init();
-  
+
   // MAIN LOOP
   while(1){
     /*
@@ -783,45 +632,34 @@ int main() {
     if (kbhit()) break;
 
     /*
+     * ----------------------------------------------------- DRAW SCENE
+     */
+    _fmemset(buffer, 4, PIXELS);
+
+
+    /*
      * ----------------------------------------------------- SCENE SWITCHER
      */
     if((int)timer.scene==screenplay[current_scene].length){
       current_scene++;
       timer.scene=0.0f;
-      
-      if(current_scene>=SCENES){
-        timer.demo=0.0f;
-        timer.scene=0.0f;
-        current_scene=0;
-      }
-      
       palette_set(screenplay[current_scene].palette);
       switch(screenplay[current_scene].id){
        case 1:
-         scene_intro_reset();
-         break;
+	 scene_intro_reset();
+	 break;
        case 2:
-         scene_highway_reset();
-         break;
-       case 3:
          scene_moths_reset();
-         break;
-       case 4:
-         scene_fireplace_reset();
-         break;
-       case 5:
-         scene_snake_reset();
-         break;
-       case 6:
-         scene_spirals_reset();
-         break;
-       case 7:
-         scene_moon_reset();
          break;
        case 8:
          scene_outro_reset();
          break;
-      }      
+      }
+
+      if(current_scene>(sizeof(screenplay)/sizeof(Scene))){
+        current_scene=0;
+        timer.demo=0.0f;
+      }
     }
 
     /*
@@ -832,25 +670,10 @@ int main() {
         scene_intro_render(timer);
         break;
       case 2:
-         scene_highway_render(timer);
-         break;        
-      case 3:
         scene_moths_render(timer);
         break;
-      case 4:
-        scene_fireplace_render(timer);
-        break;
-      case 5:
-        scene_snake_render(timer);
-        break;
-      case 6:
-        scene_spirals_render(timer);
-        break;
-      case 7:
-        scene_moon_render(timer);
-        break;
       case 8:
-        scene_outro_render(timer);
+	scene_outro_render(timer);
         break;
     }
 
@@ -863,7 +686,7 @@ int main() {
     /*
      * BLIP VGA SCREEN
      */
-    dosmemput(buffer,PIXELS,0xA0000);
+    _fmemcpy(vga,buffer,PIXELS);
 
     /*
      * ----------------------------------------------------- TIMERS
