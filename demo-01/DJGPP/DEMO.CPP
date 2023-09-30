@@ -68,7 +68,7 @@ Scene screenplay[SCENES] = {
   {1,"INTRO",10.0f,0},
   {2,"HIGHWAY",18.0f,1},
   {3,"MOTHS",10.0f,0},
-  {4,"FIREPLACE",2.0f,2},
+  {4,"CPU",24.0f,2},
   {5,"SNAKE",2.0f,3},
   {6,"SPIRALS",2.0f,4},
   {7,"MOON",2.0f,5},
@@ -83,6 +83,31 @@ int scene_intro_cycle = 0;
 Vert vfx_stars_mem[VFX_STARS_MAX];
 Vert vfx_moths_mem[VFX_MOTHS_MAX];
 
+const char* STR_HELLO = ""
+"AFTER MORE THAN TWENTY YEARS OF "
+"FOLLOWING DEMOSCENE  IT IS TIME "
+"FOR ME TO STEP-IN ! THIS IS THE "
+"FIRST INTRO  FROM THE P1X GROUP."
+"CODED ON FREEDOS WITH  C++ OPEN "
+"WATCOM, UPX, AND FED.RUNNING ON "
+"ASUS EEE PC 701SD.900MHZ/1024MB.";
+const char* STR_WORKHARD = ""
+"  NO  PROCESSORS  WERE  HARMED  "
+"DURING DEVELOPMENT OF THIS DEMO!";
+const char* STR_MARQUEE = ""
+"THIS INTRO WAS CREATED TO LEARN BASIC SCENE TRICKS "
+"AND ESTABLISH A WORING ENGINE FOR FUTURE DOS INTROS...";
+const char* STR_GREETZ = ""
+"GREETZ TO  ALL THE  DEMOSCENERS,"
+"MASTODON FOLLOWES, FREEDOS DEVS,"
+"@DAMIENG FOR  A FONT, SHAWN FOR "
+"FOLDING EDITOR (FED), AND  LAST "
+"BUT  NOT  LEAST, TO  MY  LOVELY "
+"MONIS  FOR  ALL  THE  SUPPORT ! ";
+const char* STR_END = ""
+"     M M X X I I I   P 1 X      "
+"  KRZYSZTOF KRYSTIAN JANKOWSKI  "
+" HTTPS://KRZYSZTOFJANKOWSKI.COM ";
 /*
  * --------------------------------------------------------- FUNCTIONS
  */
@@ -314,7 +339,7 @@ void palette_set(int bank_id){
             palette[192+i].g=(int)(i*0.75);
             palette[192+i].b=0;
         }
-        	// custom colors
+          // custom colors
             //blue light
             palette[192].r=31;
             palette[192].g=36;
@@ -327,6 +352,33 @@ void palette_set(int bank_id){
             palette[194].r=63;
             palette[194].g=4;
             palette[194].b=4;
+        break;
+        
+        case 2: // CPU
+            for(int i=0;i<32;i++){
+              palette[i].r=i;
+              palette[i].g=i;
+              palette[i].b=i;
+            } // grays 32
+            for(int i=0;i<63+32;i++){
+              palette[32+i].r=63;
+              palette[32+i].g=i*0.65;
+              palette[32+i].b=21;
+            } // fire 96
+            palette[127].r=60;
+            palette[127].g=60;
+            palette[127].b=60;
+            // white 1
+            for(int i=0;i<64;i++){
+              palette[128+i].r=16;
+              palette[128+i].g=i;
+              palette[128+i].b=50;
+            } // blue 64
+            for(int i=0;i<64;i++){
+              palette[192].r=i;
+              palette[192].g=i;
+              palette[192].b=(int)(i*0.75f); 
+            } // gray 64
         break;
     }
 
@@ -708,14 +760,80 @@ void scene_moths_render(Timer timer){
 
 
 /*
- * --------------------------------------------------------- FIREPLACE
+ * --------------------------------------------------------- CPU
  */
-void scene_fireplace_init(){}
-void scene_fireplace_reset(){}
-void scene_fireplace_render(Timer timer){
-  const char* text="FIREPLACE SCENE";
-  memset(buffer, 63, PIXELS);
-  font_string_render(text,24,24,15,1,FONT_COLOR);
+void scene_cpu_init(){}
+void scene_cpu_reset(){
+  int horizon=80;
+  const char* x86 = "X86";
+  const char* intel = "INTEL";
+  int left=160-48;
+  int right=160+48;
+  int top=140-32;
+  int bot=140+32;
+
+  // clear top
+  gfx_rectangle_draw(0,0,WIDTH,horizon+2,0);
+
+  for(int y=0;y<horizon;y++){
+    int len=96-(int)(64*sin(y*PI/horizon));
+    int color=2+(int)(16*sin(y*PI/horizon));
+
+    for(float i=1.0f;i>0.1f;i-=0.25f){
+      gfx_line_simple_draw(0,(int)(len*i),y,color+(int)(i*8));
+      gfx_line_simple_draw(WIDTH-(int)(len*i),WIDTH,y,color+(int)(i*8)); 
+    }
+  }
+
+  vfx_aa_apply(0,horizon);
+  gfx_line_simple_draw(0,WIDTH,horizon+2,32);
+
+  // bg
+  for(int y=horizon+3;y<HEIGHT;y++){
+    int color=191-(int)(63*sin((y-horizon-3)*PI/(HEIGHT-horizon-4)));
+    gfx_line_simple_draw(0,WIDTH,y,color);
+  }
+
+  // shadow
+  gfx_rectangle_draw(left,top,right,bot,4);
+  for(int y=top+2;y<bot-5;y+=5){
+    //pads
+    gfx_rectangle_draw(left-4,y,left,y+3,4);
+    gfx_rectangle_draw(right,y,right+4,y+3,4);
+  }
+
+  left--;
+  right--;
+  top-=2;
+  bot-=2;
+
+  // color
+  int i=0;
+  for(int y=top+2;y<bot-5;y+=5){
+
+    //io lines
+    int color=192;
+    int mod=(int)(64*sin((y-top-2)*PI/63));
+    gfx_rectangle_draw(mod,y+1,WIDTH-mod,y+2,color+i);
+    gfx_rectangle_draw(mod,y+2,mod+2,HEIGHT,color+i);
+    gfx_rectangle_draw(WIDTH-mod-2,y+2,WIDTH-mod,HEIGHT,color+i);
+    i+=4;
+
+    //pads
+    gfx_rectangle_draw(left-4,y,left,y+3,30);
+    gfx_rectangle_draw(right,y,right+4,y+3,30);
+  }
+
+  // cpu
+  gfx_rectangle_draw(left,top,right,bot,16);
+  for(int y=top;y<bot;y++){
+    int color=16+(int)(8*sin(y*PI/64));
+    gfx_line_simple_draw(left+1,right-1,y,color);
+  }
+  font_string_render(intel,left+8,bot-26,31,1,FONT_COLOR);
+  font_string_render(x86,left+8,bot-16,31,2,FONT_COLOR);    
+}
+void scene_cpu_render(Timer timer){
 }
 
 /*
@@ -807,7 +925,7 @@ int main() {
          scene_moths_reset();
          break;
        case 4:
-         scene_fireplace_reset();
+         scene_cpu_reset();
          break;
        case 5:
          scene_snake_reset();
@@ -838,7 +956,7 @@ int main() {
         scene_moths_render(timer);
         break;
       case 4:
-        scene_fireplace_render(timer);
+        scene_cpu_render(timer);
         break;
       case 5:
         scene_snake_render(timer);
