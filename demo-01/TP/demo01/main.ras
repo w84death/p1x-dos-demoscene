@@ -1,0 +1,208 @@
+program demo01;
+@use "system/screen"
+@use "system/memory"
+@use "system/file"
+@use "gfx/gfx"	
+@use "system/tables"
+@use "gfx/fonts"
+@use "music/beeplay"
+@use "system/compression"
+@use "math/random"
+
+var	
+	@export "music/bubble.trt" "music.bin" 3
+	song: incbin("music.bin");
+	
+	@export "fonts/font_8.flf" "fonts/font.bin" 255
+	@compress "fonts/font.bin" "font.bin"
+	font: string="font.bin";
+	
+	i,time,scene_time : integer = 0;
+	color, c : integer = 0;
+	current_scene : integer = 0;
+	current_scene_len : integer;
+	last_scene : integer = 2;
+	
+	/* 
+    * SCENE LINES 
+	 */
+	x1,x2 : integer = 160;
+	y1,y2 : integer = 100;
+	sx,sy : integer;
+	shift : integer = 0;
+	const line_width : byte = 15;
+	
+	sinx : array[256] of integer = buildsinetable(320-line_width);
+	siny : array[256] of integer = buildsinetable(200-line_width);
+	grad : array[128] of byte = buildsinetable(64);
+	
+	intro_text: string="HELLO, TURBO RASCAL!";
+	lines_text: string="PLACEHOLDER EFFECT";
+	outro_text: string="END OF THE DEMO...";
+	tp:pointer;
+
+procedure SetPalette(pal : integer);
+begin
+	case pal of
+		0: begin						
+			for i:=0 to 64 do
+			begin
+				c:=32+grad[i];	
+				Screen::SetColor(i,		c,c,c);
+				Screen::SetColor(64+i,	c/2,c,c);
+				Screen::SetColor(128+i,	c,c/2,c);
+				Screen::SetColor(192+i,	c,c,c/2);
+			end;
+		end;
+		
+		1: begin						
+			for i:=0 to 64 do
+			begin
+				c:=32+grad[i];	
+				Screen::SetColor(i,		c,c,c);
+				Screen::SetColor(64+i,	c,0,0);
+				Screen::SetColor(128+i,	0,c,0);
+				Screen::SetColor(192+i,	0,0,c);
+			end;
+		end;
+	end;
+end;
+
+procedure DrawPalette();
+begin
+	for i:=0 to 256 do
+	begin
+		Gfx::DrawLine(i,0,i,8,i,Screen::buffer1);
+	end;	
+end;
+
+procedure SceneLinesReset();
+begin
+	tp:=#lines_text;
+	shift:=0;
+	current_scene_len:=300;
+end;
+
+procedure SceneLinesRender();
+begin
+	for i:=0 to 32 do
+	begin
+		sx := sinx[(i*line_width+scene_time*2)&255];
+		sy := siny[(i*line_width+scene_time*3+shift)&255];
+		
+		x1 := x2;
+		y1 := y2;
+		x2 := mod(Random::Random(),line_width)+sx;
+		y2 := mod(Random::Random(),line_width)+sy;
+		
+		Gfx::DrawLine(x1,y1,x2,y2, (color+i)&255, Screen::buffer1);
+	end;
+	if(scene_time&15=0) then shift+=1;
+	Fonts::addValue:=color&255;
+	Fonts::PrintString(tp,160-(hi(tp))*5,100,Screen::buffer1);
+	inc(color);	
+end;
+
+procedure SceneIntroRender();
+begin
+	Fonts::addValue:=31;
+	Fonts::PrintString(tp,160-(hi(tp))*5,100,Screen::buffer1);
+end;
+
+procedure SceneIntroReset();
+begin
+	tp:=#intro_text;
+	current_scene_len:=30;
+end;
+
+procedure SceneOutroRender();
+begin
+	Fonts::addValue:=128;
+	Fonts::PrintString(tp,160-(hi(tp))*5,100,Screen::buffer1);
+end;
+
+procedure SceneOutroReset();
+begin
+	tp:=#outro_text;
+	current_scene_len:=30;
+end;
+
+procedure ResetScene(scene_to_reset: integer);
+begin
+	case scene_to_reset of
+		0: SceneIntroReset();
+		1: SceneLinesReset();
+		2: SceneOutroReset();
+	end;
+end;
+
+procedure RenderScene(scene_to_render: integer);
+begin
+	case scene_to_render of
+		0: SceneIntroRender();
+		1: SceneLinesRender();
+		2: SceneOutroRender();
+	end;
+end;
+
+
+interrupt RasterIRQ();
+begin
+	StartIRQ();
+	BeePlay::Update();
+	BeePlay::Play();
+	CloseIRQ();
+end;
+
+
+begin
+	Memory::Init();
+	Screen::SetMode($13);
+	Screen::InitVGABuffers(4);
+	ResetScene(current_scene);
+	SetPalette(current_scene);	
+	
+	BeePlay::Initialize(#song);
+	BeePlay::octShift:=1; // octave shift
+	BeePlay::decayLength[0]:=2; // Sustain of columm 0
+	BeePlay::decayLength[1]:=4; // Sustain of column 1
+	BeePlay::speed := 3;
+			
+	File::ReadAll(#font, Screen::buffer4);
+	Compression::Decompress(Screen::buffer4, Screen::buffer3);
+	Fonts::Init(Screen::buffer3,10,16,32,Fonts::DEFAULT_SHIFT);
+	Fonts::writeType := Fonts::WRITETYPE_MASK;
+	Fonts::maskColor := 1;
+
+	Memory::SetTimer(33860);
+	SetInterrupt($8, RasterIRQ());
+
+	while (true) do
+	begin
+		waitforverticalblank();
+			
+		Screen::CopyVGABuffer32bit(Screen::buffer1,ptr(Screen::VGA,0));
+		
+		if (scene_time>current_scene_len) then
+		begin
+			current_scene+=1;
+			scene_time:=0;
+			if (current_scene>last_scene) then
+			begin
+				current_scene:=0;
+				time:=0;
+			end;
+			
+			ResetScene(current_scene);
+			SetPalette(current_scene);
+		end;
+	
+		Screen::ClearBuffer32bit(Screen::buffer1,0);
+		RenderScene(current_scene);
+		
+		DrawPalette();
+		inc(time);
+		inc(scene_time);
+	end;
+	
+end.
