@@ -10,10 +10,10 @@ program demo01;
 @use "math/random"
 
 var	
-	@export "music/bubble.trt" "music.bin" 3
+	@export "music/tune1.trt" "music.bin" 3
 	song: incbin("music.bin");
 	
-	@export "fonts/font_8.flf" "fonts/font.bin" 255
+	@export "fonts/font.flf" "fonts/font.bin" 255
 	@compress "fonts/font.bin" "font.bin"
 	font: string="font.bin";
 	
