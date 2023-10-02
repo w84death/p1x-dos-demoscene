@@ -23,12 +23,23 @@ var
 	current_scene_len : integer;
 	last_scene : integer = 2;
 	
+	/*
+	 * SCENE INTRO - STARS
+	 */
+	particle = record
+			x,y,z:signed integer;
+			speed:integer;
+	end;
+	stars : array[300] of particle;
+	stars_colors : array[256] of byte = buildtable("Math.sin(i*Math.PI/512)*63");
+	 
 	/* 
     * SCENE LINES 
 	 */
 	x1,x2 : integer = 160;
 	y1,y2 : integer = 100;
-	sx,sy : integer;
+	x,y,z : integer;
+	sx,sy,sz : signed integer;
 	shift : integer = 0;
 	const line_width : byte = 15;
 	
@@ -46,12 +57,10 @@ begin
 	case pal of
 		0: begin						
 			for i:=0 to 64 do
-			begin
-				c:=32+grad[i];	
-				Screen::SetColor(i,		c,c,c);
-				Screen::SetColor(64+i,	c/2,c,c);
-				Screen::SetColor(128+i,	c,c/2,c);
-				Screen::SetColor(192+i,	c,c,c/2);
+			begin	
+				c:=32+grad[i];				
+				Screen::SetColor(i,		4+i/2,4+i/2,4+i/2);
+				Screen::SetColor(64+i,	c,c,c);
 			end;
 		end;
 		
@@ -102,17 +111,46 @@ begin
 	Fonts::PrintString(tp,160-(hi(tp))*5,100,Screen::buffer1);
 	inc(color);	
 end;
-
+	
 procedure SceneIntroRender();
+var
+	SPEED : byte = 8;
 begin
-	Fonts::addValue:=31;
-	Fonts::PrintString(tp,160-(hi(tp))*5,100,Screen::buffer1);
+	
+	for i:=0 to 300 do
+	begin
+		stars[i].z -= stars[i].speed*SPEED;
+		if(stars[i].z<=0) then stars[i].z:=255;
+		
+		sx:=stars[i].x+4000;
+		sy:=stars[i].y+4000;
+		sz:=stars[i].z;
+		x:=(sx/sz)+160;
+		y:=(sy/sz)+100;		
+		
+		color:=63-stars_colors[sz];
+
+		if (x>0 and (x<320 and (y>0 and y<200))) then
+		begin
+			Gfx::PutPixel(x,y,color,Screen::buffer1);
+		end		
+	end;
+	
+	Fonts::addValue:=mod(scene_time,32)+64;
+	Fonts::PrintString(tp,160-(hi(tp))*5,140,Screen::buffer1);
 end;
 
 procedure SceneIntroReset();
 begin
+	for i:=0 to 300 do
+	begin
+		stars[i].x := 8000-mod(Random::Random(),16000);
+		stars[i].y := 8000-mod(Random::Random(),16000); 
+		stars[i].z := mod(Random::Random(),255)+1;
+		stars[i].speed :=1+mod(Random::Random(),8);
+	end;
 	tp:=#intro_text;
-	current_scene_len:=30;
+	current_scene_len:=300;
 end;
 
 procedure SceneOutroRender();
@@ -139,9 +177,17 @@ end;
 procedure RenderScene(scene_to_render: integer);
 begin
 	case scene_to_render of
-		0: SceneIntroRender();
-		1: SceneLinesRender();
-		2: SceneOutroRender();
+		0: begin
+			Screen::ClearBuffer32bit(Screen::buffer1,0);
+			SceneIntroRender();
+			end;
+		1: begin
+			SceneLinesRender();
+			end;
+		2: begin
+			Screen::ClearBuffer32bit(Screen::buffer1,0);
+			SceneOutroRender();
+		end;
 	end;
 end;
 
@@ -197,7 +243,7 @@ begin
 			SetPalette(current_scene);
 		end;
 	
-		Screen::ClearBuffer32bit(Screen::buffer1,0);
+		
 		RenderScene(current_scene);
 		
 		DrawPalette();
