@@ -18,7 +18,7 @@ var
 	font: string="font.bin";
 	
 	i,time,scene_time : integer = 0;
-	color, c : integer = 0;
+	color,color2,c : integer = 0;
 	current_scene : integer = 0;
 	current_scene_len : integer;
 	last_scene : integer = 2;
@@ -33,6 +33,13 @@ var
 	stars : array[300] of particle;
 	stars_colors : array[256] of byte = buildtable("Math.sin(i*Math.PI/512)*63");
 	 
+	 
+	skyline_distribution : array[256] of integer = buildtable("4+Math.sin(i*Math.PI/256)*32*Math.random()");
+	skyline_sizes : array[8] of integer = buildtable("8+32-Math.sin(Math.random())*32");
+	depth_color : array[128] of integer = buildtable("63-Math.sin(i*Math.PI/512)*63");
+
+	factor : integer;
+	
 	/* 
     * SCENE LINES 
 	 */
@@ -47,9 +54,14 @@ var
 	siny : array[256] of integer = buildsinetable(200-line_width);
 	grad : array[128] of byte = buildsinetable(64);
 	
-	intro_text: string="HELLO, TURBO RASCAL!";
+	/*
+	 * STRINGS
+	 */
+	intro_text: string="POWERED BY TRSE";
 	lines_text: string="PLACEHOLDER EFFECT";
-	outro_text: string="END OF THE DEMO...";
+	outro_text: string="END OF THE DEMO...";	
+	highway_text: string="HERE WILL BE THE HIGHWAY";
+	date_text: string="OCTOBER 2023";
 	tp:pointer;
 
 procedure SetPalette(pal : integer);
@@ -60,7 +72,7 @@ begin
 			begin	
 				c:=32+grad[i];				
 				Screen::SetColor(i,		4+i/2,4+i/2,4+i/2);
-				Screen::SetColor(64+i,	c,c,c);
+				Screen::SetColor(64+i,	63,63,63);
 			end;
 		end;
 		
@@ -68,10 +80,10 @@ begin
 			for i:=0 to 64 do
 			begin
 				c:=32+grad[i];	
-				Screen::SetColor(i,		c,c,c);
-				Screen::SetColor(64+i,	c,0,0);
-				Screen::SetColor(128+i,	0,c,0);
-				Screen::SetColor(192+i,	0,0,c);
+				Screen::SetColor(i,		2+i/2,2+i/2,2+i/2);
+				Screen::SetColor(64+i,	i/4,i/2,i/4);
+				Screen::SetColor(128+i,	i/4,0,16-i/8);
+				Screen::SetColor(192+i,	i/2,i/2,0);
 			end;
 		end;
 	end;
@@ -85,45 +97,43 @@ begin
 	end;	
 end;
 
-procedure SceneLinesReset();
-begin
-	tp:=#lines_text;
-	shift:=0;
-	current_scene_len:=300;
-end;
 
-procedure SceneLinesRender();
+procedure LogoAnimatedDraw();
 begin
-	for i:=0 to 32 do
-	begin
-		sx := sinx[(i*line_width+scene_time*2)&255];
-		sy := siny[(i*line_width+scene_time*3+shift)&255];
-		
-		x1 := x2;
-		y1 := y2;
-		x2 := mod(Random::Random(),line_width)+sx;
-		y2 := mod(Random::Random(),line_width)+sy;
-		
-		Gfx::DrawLine(x1,y1,x2,y2, (color+i)&255, Screen::buffer1);
-	end;
-	if(scene_time&15=0) then shift+=1;
-	Fonts::addValue:=color&255;
-	Fonts::PrintString(tp,160-(hi(tp))*5,100,Screen::buffer1);
-	inc(color);	
+	x:=120;
+	y:=40;
+	
+	Gfx::DrawSquare(x,y,x+5,y+100,64,Screen::buffer1);
+	Gfx::DrawSquare(x+5,y,x+25,y+5,64+16,Screen::buffer1);
+	Gfx::DrawSquare(x+5,y+55,x+25,y+60,64+48,Screen::buffer1);
+	Gfx::DrawSquare(x+25,y,x+30,y+60,64+32,Screen::buffer1);
+	
+	Gfx::DrawSquare(x+40,y,x+45,y+100,64+16,Screen::buffer1);
+	Gfx::DrawSquare(x+35,y+5,x+40,y+10,64,Screen::buffer1);
+	
+	Gfx::DrawSquare(x+55,y,x+60,y+40,64+48,Screen::buffer1);
+	Gfx::DrawSquare(x+75,y,x+80,y+40,64+32,Screen::buffer1);
+	Gfx::DrawSquare(x+55,y+55,x+60,y+100,64,Screen::buffer1);
+	Gfx::DrawSquare(x+75,y+55,x+80,y+100,64+16,Screen::buffer1);
+	
+	Gfx::DrawSquare(x+60,y+40,x+65,y+45,64+32,Screen::buffer1);
+	Gfx::DrawSquare(x+60,y+50,x+65,y+55,64+16,Screen::buffer1);
+	Gfx::DrawSquare(x+70,y+40,x+75,y+45,64,Screen::buffer1);
+	Gfx::DrawSquare(x+70,y+50,x+75,y+55,64+16,Screen::buffer1);
+	Gfx::DrawSquare(x+65,y+45,x+70,y+50,64+48,Screen::buffer1);
 end;
 	
 procedure SceneIntroRender();
-var
-	SPEED : byte = 8;
 begin
-	
+	Fonts::addValue:=mod(scene_time,32)+64;
+
 	for i:=0 to 300 do
 	begin
-		stars[i].z -= stars[i].speed*SPEED;
+		stars[i].z -= stars[i].speed;
 		if(stars[i].z<=0) then stars[i].z:=255;
 		
-		sx:=stars[i].x+4000;
-		sy:=stars[i].y+4000;
+		sx:=stars[i].x+5000;
+		sy:=stars[i].y+5000;
 		sz:=stars[i].z;
 		x:=(sx/sz)+160;
 		y:=(sy/sz)+100;		
@@ -135,23 +145,91 @@ begin
 			Gfx::PutPixel(x,y,color,Screen::buffer1);
 		end		
 	end;
-	
-	Fonts::addValue:=mod(scene_time,32)+64;
-	Fonts::PrintString(tp,160-(hi(tp))*5,140,Screen::buffer1);
+	LogoAnimatedDraw();
+	Fonts::PrintString(tp,160-(hi(tp))*5,170,Screen::buffer1);
 end;
 
 procedure SceneIntroReset();
 begin
 	for i:=0 to 300 do
 	begin
-		stars[i].x := 8000-mod(Random::Random(),16000);
-		stars[i].y := 8000-mod(Random::Random(),16000); 
+		stars[i].x := 10000-mod(Random::Random(),20000);
+		stars[i].y := 10000-mod(Random::Random(),20000); 
 		stars[i].z := mod(Random::Random(),255)+1;
-		stars[i].speed :=1+mod(Random::Random(),8);
+		stars[i].speed :=2+mod(Random::Random(),12);
 	end;
 	tp:=#intro_text;
 	current_scene_len:=300;
 end;
+
+procedure SceneHighwaySkyLineDraw();
+var
+	levels : integer;
+	size : integer;
+begin
+
+	for i:=0 to 80 do
+	begin
+		Gfx::Hline(0,320,i,128+i/2,Screen::buffer1);
+	end;
+	
+	Gfx::Hline(0,320,80,31,Screen::buffer1);
+	
+	Fonts::addValue:=90;
+	tp:=#date_text;
+	Fonts::PrintString(tp,160-(hi(tp))*5,40,Screen::buffer1);
+	
+	for i:=0 to 256 step 16 do
+	begin
+		x:=32+i;
+		levels:=skyline_distribution[i];
+		size:=4+skyline_sizes[i/16];
+		Gfx::DrawSquare(x,80-levels,x+size,80,0,Screen::buffer1);
+	end;
+end;
+
+procedure SceneHighwayTerrainDraw();
+var
+		factor2:integer;
+begin
+	for i:=0 to 120 do
+	begin
+		factor:=1+(i*100/120);
+		factor2:=1+(i*100+1)/factor;
+		color:=63-depth_color[i];
+		color2:=127-depth_color[i];
+		c:=255-depth_color[i];
+
+		Gfx::Hline(0,160-factor,80+i,color2,Screen::buffer1);
+		Gfx::Hline(160-factor,160+factor,80+i,color,Screen::buffer1);
+		if(mod(scene_time-factor2,20)>15) then
+		begin
+			Gfx::Hline(160-factor/5,160+factor/5,80+i,c,Screen::buffer1);			
+		end;
+		Gfx::Hline(160+factor,320,80+i,color2,Screen::buffer1);
+	end;
+end;
+
+procedure SceneHighwayCarDraw();
+begin
+
+end;
+
+procedure SceneHighwayReset();
+begin
+	current_scene_len:=2000;
+	SceneHighwaySkyLineDraw();
+	SceneHighwayTerrainDraw();
+end;
+
+procedure SceneHighwayRender();
+begin	
+	// once 2 sec refresh city
+
+	SceneHighwayTerrainDraw();
+	SceneHighwayCarDraw();
+end;
+
 
 procedure SceneOutroRender();
 begin
@@ -167,10 +245,17 @@ end;
 
 procedure ResetScene(scene_to_reset: integer);
 begin
+	Screen::ClearBuffer32bit(Screen::buffer1,0);
 	case scene_to_reset of
-		0: SceneIntroReset();
-		1: SceneLinesReset();
-		2: SceneOutroReset();
+		0: begin
+			SceneIntroReset();
+			end;
+		1: begin
+			SceneHighwayReset();
+			end;
+		2: begin
+			SceneOutroReset();
+			end;
 	end;
 end;
 
@@ -182,7 +267,7 @@ begin
 			SceneIntroRender();
 			end;
 		1: begin
-			SceneLinesRender();
+			SceneHighwayRender();
 			end;
 		2: begin
 			Screen::ClearBuffer32bit(Screen::buffer1,0);
@@ -197,6 +282,8 @@ begin
 	StartIRQ();
 	BeePlay::Update();
 	BeePlay::Play();
+	inc(time);
+	inc(scene_time);
 	CloseIRQ();
 end;
 
@@ -247,8 +334,6 @@ begin
 		RenderScene(current_scene);
 		
 		DrawPalette();
-		inc(time);
-		inc(scene_time);
 	end;
 	
 end.
