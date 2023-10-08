@@ -1,7 +1,7 @@
 	CPU 486
 	[map symbols /home/piec/DOS/p1x-dos-demoscene/demo-01/TRSE/demo01/symbols.map]
 	[ORG 0x100]
-	; LineNumber: 291
+	; LineNumber: 314
 	jmp block1
 	; LineNumber: 3
 Memory_i1:	dw	0
@@ -164,32 +164,32 @@ Compression_inb: dw  0,0
 Compression_outb: dw  0,0
 	; LineNumber: 4
 Random_Seed:	dw	0
-	; LineNumber: 14
+	; LineNumber: 17
 song:
 	incbin	 "/home/piec/DOS/p1x-dos-demoscene/demo-01/TRSE/demo01///music.bin"
 end_incbin_song:
 	; LineNumber: 18
 font		db	"font.bin"
 	db	0
-	; LineNumber: 20
+	; LineNumber: 21
 i:	dw	0x00
-	; LineNumber: 20
+	; LineNumber: 21
 time:	dw	0x00
-	; LineNumber: 20
+	; LineNumber: 21
 scene_time:	dw	0x00
-	; LineNumber: 21
-color:	dw	0x00
-	; LineNumber: 21
-color2:	dw	0x00
-	; LineNumber: 21
-c:	dw	0x00
 	; LineNumber: 22
-current_scene:	dw	0x00
+color:	dw	0x00
+	; LineNumber: 22
+color2:	dw	0x00
+	; LineNumber: 22
+c:	dw	0x00
 	; LineNumber: 23
-current_scene_len:	dw	0
+current_scene:	dw	0x00
 	; LineNumber: 24
+current_scene_len:	dw	0
+	; LineNumber: 25
 last_scene:	dw	0x02
-	; LineNumber: 33
+	; LineNumber: 34
 stars_particle_particle_x	dw	0
 	    dw 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 stars_particle_particle_y	dw	0
@@ -198,7 +198,7 @@ stars_particle_particle_z	dw	0
 	    dw 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 stars_particle_particle_speed	dw	0
 	    dw 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	; LineNumber: 34
+	; LineNumber: 35
 stars_colors:	db 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x02, 0x02
 	db 0x03, 0x03, 0x03, 0x04, 0x04, 0x05, 0x05, 0x05
 	db 0x06, 0x06, 0x06, 0x07, 0x07, 0x08, 0x08, 0x08
@@ -232,44 +232,44 @@ stars_colors:	db 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x02, 0x02
 	db 0x3e, 0x3e, 0x3e, 0x3e, 0x3e, 0x3e, 0x3e, 0x3e
 	db 0x3e, 0x3e, 0x3e, 0x3e, 0x3e, 0x3e, 0x3e, 0x3e
 	db 
-	; LineNumber: 37
-skyline_distribution:	dw 0x04, 0x04, 0x04, 0x04, 0x05, 0x05, 0x06, 0x04
-	dw 0x05, 0x05, 0x07, 0x06, 0x08, 0x04, 0x05, 0x07
-	dw 0x06, 0x09, 0x04, 0x08, 0x08, 0x06, 0x08, 0x06
-	dw 0x05, 0x04, 0x04, 0x04, 0x08, 0x0c, 0x07, 0x0b
-	dw 0x0c, 0x0d, 0x10, 0x05, 0x0e, 0x11, 0x0b, 0x08
-	dw 0x10, 0x08, 0x07, 0x05, 0x0c, 0x08, 0x0f, 0x04
-	dw 0x05, 0x0b, 0x11, 0x06, 0x11, 0x0e, 0x16, 0x05
-	dw 0x0b, 0x05, 0x0d, 0x0f, 0x04, 0x15, 0x14, 0x0c
-	dw 0x1a, 0x0f, 0x0f, 0x09, 0x0a, 0x16, 0x08, 0x11
-	dw 0x1b, 0x0c, 0x0f, 0x17, 0x1c, 0x0a, 0x15, 0x12
-	dw 0x08, 0x18, 0x1d, 0x0b, 0x09, 0x08, 0x18, 0x0b
-	dw 0x1f, 0x0e, 0x08, 0x11, 0x0a, 0x1c, 0x04, 0x16
-	dw 0x12, 0x1a, 0x1f, 0x13, 0x1c, 0x0a, 0x19, 0x10
-	dw 0x20, 0x1d, 0x11, 0x06, 0x06, 0x19, 0x14, 0x09
-	dw 0x13, 0x0b, 0x0d, 0x16, 0x1f, 0x11, 0x1a, 0x0b
-	dw 0x17, 0x08, 0x08, 0x0f, 0x07, 0x13, 0x17, 0x09
-	dw 0x17, 0x19, 0x08, 0x22, 0x1f, 0x13, 0x18, 0x22
-	dw 0x09, 0x10, 0x0c, 0x17, 0x1b, 0x0d, 0x0e, 0x22
-	dw 0x0a, 0x17, 0x09, 0x20, 0x1f, 0x0a, 0x22, 0x14
-	dw 0x05, 0x13, 0x1f, 0x1c, 0x0a, 0x0c, 0x08, 0x09
-	dw 0x0b, 0x0e, 0x08, 0x09, 0x20, 0x04, 0x1f, 0x18
-	dw 0x17, 0x13, 0x0e, 0x07, 0x1e, 0x15, 0x05, 0x06
-	dw 0x12, 0x09, 0x0e, 0x16, 0x12, 0x19, 0x07, 0x05
-	dw 0x19, 0x17, 0x0e, 0x1b, 0x15, 0x1b, 0x10, 0x0c
-	dw 0x0a, 0x09, 0x10, 0x10, 0x0c, 0x14, 0x0d, 0x05
-	dw 0x0b, 0x09, 0x09, 0x08, 0x06, 0x0b, 0x16, 0x06
-	dw 0x08, 0x0b, 0x13, 0x0c, 0x08, 0x0e, 0x05, 0x0f
-	dw 0x0f, 0x12, 0x11, 0x0a, 0x0b, 0x0a, 0x06, 0x0c
-	dw 0x07, 0x04, 0x09, 0x07, 0x0c, 0x09, 0x08, 0x0b
-	dw 0x0a, 0x09, 0x05, 0x0a, 0x08, 0x07, 0x05, 0x09
-	dw 0x04, 0x05, 0x09, 0x04, 0x06, 0x06, 0x05, 0x06
-	dw 0x04, 0x06, 0x05, 0x04, 0x04, 0x04, 0x04, 0x04
-	dw 
 	; LineNumber: 38
-skyline_sizes:	dw 0x21, 0x0f, 0x27, 0x10, 0x0e, 0x14, 0x0e, 0x0d
+skyline_distribution:	dw 0x04, 0x04, 0x04, 0x04, 0x04, 0x05, 0x04, 0x04
+	dw 0x04, 0x06, 0x05, 0x06, 0x04, 0x05, 0x04, 0x05
+	dw 0x05, 0x07, 0x04, 0x05, 0x05, 0x0b, 0x08, 0x07
+	dw 0x0c, 0x0b, 0x0b, 0x0b, 0x0a, 0x0e, 0x0d, 0x0b
+	dw 0x06, 0x0e, 0x07, 0x04, 0x0d, 0x06, 0x10, 0x0c
+	dw 0x11, 0x0d, 0x0a, 0x0e, 0x0f, 0x0f, 0x10, 0x13
+	dw 0x06, 0x12, 0x11, 0x07, 0x0d, 0x0b, 0x11, 0x12
+	dw 0x10, 0x0d, 0x08, 0x13, 0x18, 0x0f, 0x13, 0x14
+	dw 0x09, 0x11, 0x1a, 0x0d, 0x17, 0x05, 0x0b, 0x14
+	dw 0x0d, 0x12, 0x15, 0x19, 0x08, 0x0c, 0x04, 0x18
+	dw 0x17, 0x10, 0x0a, 0x1b, 0x0c, 0x08, 0x0f, 0x1b
+	dw 0x1b, 0x0f, 0x0a, 0x16, 0x13, 0x19, 0x19, 0x0f
+	dw 0x21, 0x07, 0x0c, 0x10, 0x0a, 0x0f, 0x16, 0x11
+	dw 0x1a, 0x08, 0x1c, 0x09, 0x22, 0x23, 0x04, 0x04
+	dw 0x0a, 0x12, 0x0a, 0x06, 0x1f, 0x17, 0x06, 0x10
+	dw 0x08, 0x08, 0x23, 0x10, 0x1a, 0x08, 0x1f, 0x0d
+	dw 0x11, 0x0a, 0x0e, 0x1e, 0x21, 0x0b, 0x1d, 0x13
+	dw 0x0f, 0x0d, 0x0b, 0x1c, 0x07, 0x13, 0x19, 0x20
+	dw 0x16, 0x21, 0x1e, 0x15, 0x17, 0x07, 0x1e, 0x15
+	dw 0x17, 0x06, 0x15, 0x20, 0x16, 0x13, 0x1f, 0x18
+	dw 0x0d, 0x13, 0x05, 0x07, 0x05, 0x14, 0x12, 0x0d
+	dw 0x0e, 0x12, 0x05, 0x16, 0x06, 0x1b, 0x08, 0x1b
+	dw 0x05, 0x16, 0x07, 0x16, 0x16, 0x07, 0x0c, 0x08
+	dw 0x0c, 0x09, 0x19, 0x0e, 0x19, 0x17, 0x0f, 0x0c
+	dw 0x06, 0x0f, 0x08, 0x0b, 0x0c, 0x05, 0x08, 0x06
+	dw 0x09, 0x13, 0x12, 0x0e, 0x09, 0x16, 0x0d, 0x0d
+	dw 0x0c, 0x07, 0x0d, 0x06, 0x11, 0x13, 0x04, 0x04
+	dw 0x09, 0x05, 0x0e, 0x09, 0x0c, 0x08, 0x0f, 0x0f
+	dw 0x0d, 0x06, 0x04, 0x04, 0x04, 0x0c, 0x05, 0x04
+	dw 0x06, 0x08, 0x07, 0x09, 0x09, 0x06, 0x08, 0x04
+	dw 0x06, 0x05, 0x04, 0x04, 0x04, 0x08, 0x04, 0x06
+	dw 0x07, 0x05, 0x05, 0x04, 0x04, 0x04, 0x04, 0x04
 	dw 
 	; LineNumber: 39
+skyline_sizes:	dw 0x1c, 0x17, 0x17, 0x1c, 0x0f, 0x26, 0x1d, 0x22
+	dw 
+	; LineNumber: 40
 depth_color:	dw 0x3f, 0x3e, 0x3e, 0x3d, 0x3d, 0x3d, 0x3c, 0x3c
 	dw 0x3b, 0x3b, 0x3b, 0x3a, 0x3a, 0x39, 0x39, 0x39
 	dw 0x38, 0x38, 0x38, 0x37, 0x37, 0x36, 0x36, 0x36
@@ -287,20 +287,20 @@ depth_color:	dw 0x3f, 0x3e, 0x3e, 0x3d, 0x3d, 0x3d, 0x3c, 0x3c
 	dw 0x17, 0x16, 0x16, 0x16, 0x15, 0x15, 0x15, 0x14
 	dw 0x14, 0x14, 0x14, 0x13, 0x13, 0x13, 0x13, 0x12
 	dw 
-	; LineNumber: 41
+	; LineNumber: 42
 factor:	dw	0
-	; LineNumber: 48
+	; LineNumber: 49
 x:	dw	0
-	; LineNumber: 48
+	; LineNumber: 49
 y:	dw	0
-	; LineNumber: 49
+	; LineNumber: 50
 sx:	dw	0
-	; LineNumber: 49
+	; LineNumber: 50
 sy:	dw	0
-	; LineNumber: 49
+	; LineNumber: 50
 sz:	dw	0
-	; LineNumber: 55
-grad:	db 0x20, 0x21, 0x23, 0x24, 0x26, 0x27, 0x29, 0x2a
+	; LineNumber: 56
+sin64:	db 0x20, 0x21, 0x23, 0x24, 0x26, 0x27, 0x29, 0x2a
 	db 0x2c, 0x2d, 0x2f, 0x30, 0x31, 0x33, 0x34, 0x35
 	db 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3c
 	db 0x3d, 0x3e, 0x3e, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f
@@ -317,16 +317,52 @@ grad:	db 0x20, 0x21, 0x23, 0x24, 0x26, 0x27, 0x29, 0x2a
 	db 0x09, 0x0a, 0x0b, 0x0c, 0x0e, 0x0f, 0x10, 0x12
 	db 0x13, 0x15, 0x16, 0x18, 0x19, 0x1b, 0x1c, 0x1e
 	db 
-	; LineNumber: 60
+	; LineNumber: 57
+sin32:	db 0x10, 0x10, 0x10, 0x11, 0x11, 0x11, 0x12, 0x12
+	db 0x13, 0x13, 0x13, 0x14, 0x14, 0x15, 0x15, 0x15
+	db 0x16, 0x16, 0x16, 0x17, 0x17, 0x17, 0x18, 0x18
+	db 0x18, 0x19, 0x19, 0x19, 0x1a, 0x1a, 0x1a, 0x1b
+	db 0x1b, 0x1b, 0x1b, 0x1c, 0x1c, 0x1c, 0x1c, 0x1d
+	db 0x1d, 0x1d, 0x1d, 0x1d, 0x1e, 0x1e, 0x1e, 0x1e
+	db 0x1e, 0x1e, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f
+	db 0x1f, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f
+	db 0x20, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f
+	db 0x1f, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f, 0x1e
+	db 0x1e, 0x1e, 0x1e, 0x1e, 0x1e, 0x1d, 0x1d, 0x1d
+	db 0x1d, 0x1d, 0x1c, 0x1c, 0x1c, 0x1c, 0x1b, 0x1b
+	db 0x1b, 0x1b, 0x1a, 0x1a, 0x1a, 0x19, 0x19, 0x19
+	db 0x18, 0x18, 0x18, 0x17, 0x17, 0x17, 0x16, 0x16
+	db 0x16, 0x15, 0x15, 0x15, 0x14, 0x14, 0x13, 0x13
+	db 0x13, 0x12, 0x12, 0x11, 0x11, 0x11, 0x10, 0x10
+	db 0x10, 0x0f, 0x0f, 0x0e, 0x0e, 0x0e, 0x0d, 0x0d
+	db 0x0c, 0x0c, 0x0c, 0x0b, 0x0b, 0x0a, 0x0a, 0x0a
+	db 0x09, 0x09, 0x09, 0x08, 0x08, 0x08, 0x07, 0x07
+	db 0x07, 0x06, 0x06, 0x06, 0x05, 0x05, 0x05, 0x04
+	db 0x04, 0x04, 0x04, 0x03, 0x03, 0x03, 0x03, 0x02
+	db 0x02, 0x02, 0x02, 0x02, 0x01, 0x01, 0x01, 0x01
+	db 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+	db 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+	db 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+	db 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01
+	db 0x01, 0x01, 0x01, 0x01, 0x01, 0x02, 0x02, 0x02
+	db 0x02, 0x02, 0x03, 0x03, 0x03, 0x03, 0x04, 0x04
+	db 0x04, 0x04, 0x05, 0x05, 0x05, 0x06, 0x06, 0x06
+	db 0x07, 0x07, 0x07, 0x08, 0x08, 0x08, 0x09, 0x09
+	db 0x09, 0x0a, 0x0a, 0x0a, 0x0b, 0x0b, 0x0c, 0x0c
+	db 0x0c, 0x0d, 0x0d, 0x0e, 0x0e, 0x0e, 0x0f, 0x0f
+	db 
+	; LineNumber: 59
+scene_intro_color:	db	0x00
+	; LineNumber: 64
 intro_text		db	"POWERED BY TRSE"
 	db	0
-	; LineNumber: 62
+	; LineNumber: 66
 outro_text		db	"END OF THE DEMO..."
 	db	0
-	; LineNumber: 64
+	; LineNumber: 68
 date_text		db	"OCTOBER 2023"
 	db	0
-	; LineNumber: 65
+	; LineNumber: 69
 tp: dw  0,0
 	; ***********  Defining procedure : Memory_SetTimer
 	;    Procedure type : User-defined procedure
@@ -1824,30 +1860,30 @@ end_procedure_Random_Random:
 ; //	 
 	; ***********  Defining procedure : SetPalette
 	;    Procedure type : User-defined procedure
-	; LineNumber: 68
-	; LineNumber: 67
+	; LineNumber: 72
+	; LineNumber: 71
 pal:	dw	0
 SetPalette_block253:
 SetPalette:
-	; LineNumber: 69
+	; LineNumber: 73
 	mov ax, [pal]
 	mov bx, 0x0
 	cmp ax,bx
 	jne SetPalette_casenext255
-	; LineNumber: 69
-	; LineNumber: 77
+	; LineNumber: 73
+	; LineNumber: 81
 	mov [i], word 0x0
 SetPalette_forloop257:
-	; LineNumber: 71
-	; LineNumber: 73
+	; LineNumber: 75
+	; LineNumber: 77
 	; Generic add/sub
 	mov ax, 0x20
 	mov di,[i] ; index is word
-	mov bx, [grad+di]
+	mov bx, [sin64+di]
 	mov bh,0 ; forcetype clear high bit
 	add  ax,bx; bop
 	mov [c], ax
-	; LineNumber: 74
+	; LineNumber: 78
 	mov ax, [i]
 	mov [Screen_color], al
 	; Generic add/sub
@@ -1885,7 +1921,7 @@ SetPalette_forloop257:
 	add  ax,bx; bop
 	mov [Screen_blue], al
 	call Screen_SetColor
-	; LineNumber: 75
+	; LineNumber: 79
 	; RHS is pure optimization
 	mov ax, 0x40
 	; Forcetype IS POINTER: 0
@@ -1895,34 +1931,34 @@ SetPalette_forloop257:
 	mov [Screen_green], byte 0x3f
 	mov [Screen_blue], byte 0x3f
 	call Screen_SetColor
-	; LineNumber: 76
+	; LineNumber: 80
 SetPalette_loopstart258:
 	add [i],word 1
 	mov ax, 0x40
 	cmp ax,word [i]
 	jne SetPalette_forloop257
 SetPalette_loopend259:
-	; LineNumber: 77
+	; LineNumber: 81
 	jmp SetPalette_caseend254
 SetPalette_casenext255:
 	mov ax, [pal]
 	mov bx, 0x1
 	cmp ax,bx
 	jne SetPalette_casenext262
-	; LineNumber: 78
-	; LineNumber: 88
+	; LineNumber: 82
+	; LineNumber: 92
 	mov [i], word 0x0
 SetPalette_forloop264:
-	; LineNumber: 81
-	; LineNumber: 82
+	; LineNumber: 85
+	; LineNumber: 86
 	; Generic add/sub
 	mov ax, 0x20
 	mov di,[i] ; index is word
-	mov bx, [grad+di]
+	mov bx, [sin64+di]
 	mov bh,0 ; forcetype clear high bit
 	add  ax,bx; bop
 	mov [c], ax
-	; LineNumber: 83
+	; LineNumber: 87
 	mov ax, [i]
 	mov [Screen_color], al
 	; Generic add/sub
@@ -1960,7 +1996,7 @@ SetPalette_forloop264:
 	add  ax,bx; bop
 	mov [Screen_blue], al
 	call Screen_SetColor
-	; LineNumber: 84
+	; LineNumber: 88
 	; RHS is pure optimization
 	mov ax, 0x40
 	; Forcetype IS POINTER: 0
@@ -1982,7 +2018,7 @@ SetPalette_forloop264:
 	div  bx
 	mov [Screen_blue], al
 	call Screen_SetColor
-	; LineNumber: 85
+	; LineNumber: 89
 	; RHS is pure optimization
 	mov ax, 0x80
 	; Forcetype IS POINTER: 0
@@ -2007,7 +2043,7 @@ SetPalette_forloop264:
 	sub  ax,bx; bop
 	mov [Screen_blue], al
 	call Screen_SetColor
-	; LineNumber: 86
+	; LineNumber: 90
 	; RHS is pure optimization
 	mov ax, 0xc0
 	; Forcetype IS POINTER: 0
@@ -2024,28 +2060,28 @@ SetPalette_forloop264:
 	mov [Screen_green], al
 	mov [Screen_blue], byte 0x0
 	call Screen_SetColor
-	; LineNumber: 87
+	; LineNumber: 91
 SetPalette_loopstart265:
 	add [i],word 1
 	mov ax, 0x40
 	cmp ax,word [i]
 	jne SetPalette_forloop264
 SetPalette_loopend266:
-	; LineNumber: 88
+	; LineNumber: 92
 SetPalette_casenext262:
 SetPalette_caseend254:
-	; LineNumber: 90
+	; LineNumber: 94
 	ret
 end_procedure_SetPalette:
 	; ***********  Defining procedure : DrawPalette
 	;    Procedure type : User-defined procedure
-	; LineNumber: 93
-DrawPalette:
 	; LineNumber: 97
+DrawPalette:
+	; LineNumber: 101
 	mov [i], word 0x0
 DrawPalette_forloop270:
-	; LineNumber: 95
-	; LineNumber: 96
+	; LineNumber: 99
+	; LineNumber: 100
 	mov ax, [i]
 	mov [Gfx_a], ax
 	mov [Gfx_b], word 0x0
@@ -2057,25 +2093,28 @@ DrawPalette_forloop270:
 	mov [Gfx_where+2], es
 	mov [Gfx_where], di
 	call Gfx_DrawLine
-	; LineNumber: 97
+	; LineNumber: 101
 DrawPalette_loopstart271:
 	add [i],word 1
 	mov ax, 0x100
 	cmp ax,word [i]
 	jne DrawPalette_forloop270
 DrawPalette_loopend272:
-	; LineNumber: 98
+	; LineNumber: 102
 	ret
 end_procedure_DrawPalette:
-	; ***********  Defining procedure : LogoAnimatedDraw
+	; ***********  Defining procedure : P1XLogoDraw
 	;    Procedure type : User-defined procedure
-	; LineNumber: 102
-LogoAnimatedDraw:
-	; LineNumber: 103
-	mov [x], word 0x78
-	; LineNumber: 104
-	mov [y], word 0x28
 	; LineNumber: 106
+	; LineNumber: 105
+logo_color:	db	0
+P1XLogoDraw_block275:
+P1XLogoDraw:
+	; LineNumber: 107
+	mov [x], word 0x78
+	; LineNumber: 108
+	mov [y], word 0x28
+	; LineNumber: 110
 	mov ax, [x]
 	mov [Gfx_x1], ax
 	mov ax, [y]
@@ -2090,13 +2129,15 @@ LogoAnimatedDraw:
 	; Forcetype IS POINTER: 0
 	add  ax, 0x64
 	mov [Gfx_y2], ax
-	mov [Gfx_color], word 0x40
+	mov ax, [logo_color]
+	mov ah,0 ; forcetype clear high bit
+	mov [Gfx_color], ax
 	; Assigning pointer
 	les di, [Screen_buffer1]
 	mov [Gfx_addr+2], es
 	mov [Gfx_addr], di
 	call Gfx_DrawSquare
-	; LineNumber: 107
+	; LineNumber: 111
 	; RHS is pure optimization
 	mov ax, [x]
 	; Forcetype IS POINTER: 0
@@ -2114,13 +2155,15 @@ LogoAnimatedDraw:
 	; Forcetype IS POINTER: 0
 	add  ax, 0x5
 	mov [Gfx_y2], ax
-	mov [Gfx_color], word 0x50
+	mov ax, [logo_color]
+	mov ah,0 ; forcetype clear high bit
+	mov [Gfx_color], ax
 	; Assigning pointer
 	les di, [Screen_buffer1]
 	mov [Gfx_addr+2], es
 	mov [Gfx_addr], di
 	call Gfx_DrawSquare
-	; LineNumber: 108
+	; LineNumber: 112
 	; RHS is pure optimization
 	mov ax, [x]
 	; Forcetype IS POINTER: 0
@@ -2141,13 +2184,15 @@ LogoAnimatedDraw:
 	; Forcetype IS POINTER: 0
 	add  ax, 0x3c
 	mov [Gfx_y2], ax
-	mov [Gfx_color], word 0x70
+	mov ax, [logo_color]
+	mov ah,0 ; forcetype clear high bit
+	mov [Gfx_color], ax
 	; Assigning pointer
 	les di, [Screen_buffer1]
 	mov [Gfx_addr+2], es
 	mov [Gfx_addr], di
 	call Gfx_DrawSquare
-	; LineNumber: 109
+	; LineNumber: 113
 	; RHS is pure optimization
 	mov ax, [x]
 	; Forcetype IS POINTER: 0
@@ -2165,13 +2210,15 @@ LogoAnimatedDraw:
 	; Forcetype IS POINTER: 0
 	add  ax, 0x3c
 	mov [Gfx_y2], ax
-	mov [Gfx_color], word 0x60
+	mov ax, [logo_color]
+	mov ah,0 ; forcetype clear high bit
+	mov [Gfx_color], ax
 	; Assigning pointer
 	les di, [Screen_buffer1]
 	mov [Gfx_addr+2], es
 	mov [Gfx_addr], di
 	call Gfx_DrawSquare
-	; LineNumber: 111
+	; LineNumber: 115
 	; RHS is pure optimization
 	mov ax, [x]
 	; Forcetype IS POINTER: 0
@@ -2189,13 +2236,15 @@ LogoAnimatedDraw:
 	; Forcetype IS POINTER: 0
 	add  ax, 0x64
 	mov [Gfx_y2], ax
-	mov [Gfx_color], word 0x50
+	mov ax, [logo_color]
+	mov ah,0 ; forcetype clear high bit
+	mov [Gfx_color], ax
 	; Assigning pointer
 	les di, [Screen_buffer1]
 	mov [Gfx_addr+2], es
 	mov [Gfx_addr], di
 	call Gfx_DrawSquare
-	; LineNumber: 112
+	; LineNumber: 116
 	; RHS is pure optimization
 	mov ax, [x]
 	; Forcetype IS POINTER: 0
@@ -2216,13 +2265,15 @@ LogoAnimatedDraw:
 	; Forcetype IS POINTER: 0
 	add  ax, 0xa
 	mov [Gfx_y2], ax
-	mov [Gfx_color], word 0x40
+	mov ax, [logo_color]
+	mov ah,0 ; forcetype clear high bit
+	mov [Gfx_color], ax
 	; Assigning pointer
 	les di, [Screen_buffer1]
 	mov [Gfx_addr+2], es
 	mov [Gfx_addr], di
 	call Gfx_DrawSquare
-	; LineNumber: 114
+	; LineNumber: 118
 	; RHS is pure optimization
 	mov ax, [x]
 	; Forcetype IS POINTER: 0
@@ -2240,85 +2291,9 @@ LogoAnimatedDraw:
 	; Forcetype IS POINTER: 0
 	add  ax, 0x28
 	mov [Gfx_y2], ax
-	mov [Gfx_color], word 0x70
-	; Assigning pointer
-	les di, [Screen_buffer1]
-	mov [Gfx_addr+2], es
-	mov [Gfx_addr], di
-	call Gfx_DrawSquare
-	; LineNumber: 115
-	; RHS is pure optimization
-	mov ax, [x]
-	; Forcetype IS POINTER: 0
-	add  ax, 0x4b
-	mov [Gfx_x1], ax
-	mov ax, [y]
-	mov [Gfx_y1], ax
-	; RHS is pure optimization
-	mov ax, [x]
-	; Forcetype IS POINTER: 0
-	add  ax, 0x50
-	mov [Gfx_x2], ax
-	; RHS is pure optimization
-	mov ax, [y]
-	; Forcetype IS POINTER: 0
-	add  ax, 0x28
-	mov [Gfx_y2], ax
-	mov [Gfx_color], word 0x60
-	; Assigning pointer
-	les di, [Screen_buffer1]
-	mov [Gfx_addr+2], es
-	mov [Gfx_addr], di
-	call Gfx_DrawSquare
-	; LineNumber: 116
-	; RHS is pure optimization
-	mov ax, [x]
-	; Forcetype IS POINTER: 0
-	add  ax, 0x37
-	mov [Gfx_x1], ax
-	; RHS is pure optimization
-	mov ax, [y]
-	; Forcetype IS POINTER: 0
-	add  ax, 0x37
-	mov [Gfx_y1], ax
-	; RHS is pure optimization
-	mov ax, [x]
-	; Forcetype IS POINTER: 0
-	add  ax, 0x3c
-	mov [Gfx_x2], ax
-	; RHS is pure optimization
-	mov ax, [y]
-	; Forcetype IS POINTER: 0
-	add  ax, 0x64
-	mov [Gfx_y2], ax
-	mov [Gfx_color], word 0x40
-	; Assigning pointer
-	les di, [Screen_buffer1]
-	mov [Gfx_addr+2], es
-	mov [Gfx_addr], di
-	call Gfx_DrawSquare
-	; LineNumber: 117
-	; RHS is pure optimization
-	mov ax, [x]
-	; Forcetype IS POINTER: 0
-	add  ax, 0x4b
-	mov [Gfx_x1], ax
-	; RHS is pure optimization
-	mov ax, [y]
-	; Forcetype IS POINTER: 0
-	add  ax, 0x37
-	mov [Gfx_y1], ax
-	; RHS is pure optimization
-	mov ax, [x]
-	; Forcetype IS POINTER: 0
-	add  ax, 0x50
-	mov [Gfx_x2], ax
-	; RHS is pure optimization
-	mov ax, [y]
-	; Forcetype IS POINTER: 0
-	add  ax, 0x64
-	mov [Gfx_y2], ax
-	mov [Gfx_color], word 0x50
+	mov ax, [logo_color]
+	mov ah,0 ; forcetype clear high bit
+	mov [Gfx_color], ax
 	; Assigning pointer
 	les di, [Screen_buffer1]
 	mov [Gfx_addr+2], es
@@ -2328,24 +2303,23 @@ LogoAnimatedDraw:
 	; RHS is pure optimization
 	mov ax, [x]
 	; Forcetype IS POINTER: 0
-	add  ax, 0x3c
+	add  ax, 0x4b
 	mov [Gfx_x1], ax
-	; RHS is pure optimization
 	mov ax, [y]
-	; Forcetype IS POINTER: 0
-	add  ax, 0x28
 	mov [Gfx_y1], ax
 	; RHS is pure optimization
 	mov ax, [x]
 	; Forcetype IS POINTER: 0
-	add  ax, 0x41
+	add  ax, 0x50
 	mov [Gfx_x2], ax
 	; RHS is pure optimization
 	mov ax, [y]
 	; Forcetype IS POINTER: 0
-	add  ax, 0x2d
+	add  ax, 0x28
 	mov [Gfx_y2], ax
-	mov [Gfx_color], word 0x60
+	mov ax, [logo_color]
+	mov ah,0 ; forcetype clear high bit
+	mov [Gfx_color], ax
 	; Assigning pointer
 	les di, [Screen_buffer1]
 	mov [Gfx_addr+2], es
@@ -2355,6 +2329,93 @@ LogoAnimatedDraw:
 	; RHS is pure optimization
 	mov ax, [x]
 	; Forcetype IS POINTER: 0
+	add  ax, 0x37
+	mov [Gfx_x1], ax
+	; RHS is pure optimization
+	mov ax, [y]
+	; Forcetype IS POINTER: 0
+	add  ax, 0x37
+	mov [Gfx_y1], ax
+	; RHS is pure optimization
+	mov ax, [x]
+	; Forcetype IS POINTER: 0
+	add  ax, 0x3c
+	mov [Gfx_x2], ax
+	; RHS is pure optimization
+	mov ax, [y]
+	; Forcetype IS POINTER: 0
+	add  ax, 0x64
+	mov [Gfx_y2], ax
+	mov ax, [logo_color]
+	mov ah,0 ; forcetype clear high bit
+	mov [Gfx_color], ax
+	; Assigning pointer
+	les di, [Screen_buffer1]
+	mov [Gfx_addr+2], es
+	mov [Gfx_addr], di
+	call Gfx_DrawSquare
+	; LineNumber: 121
+	; RHS is pure optimization
+	mov ax, [x]
+	; Forcetype IS POINTER: 0
+	add  ax, 0x4b
+	mov [Gfx_x1], ax
+	; RHS is pure optimization
+	mov ax, [y]
+	; Forcetype IS POINTER: 0
+	add  ax, 0x37
+	mov [Gfx_y1], ax
+	; RHS is pure optimization
+	mov ax, [x]
+	; Forcetype IS POINTER: 0
+	add  ax, 0x50
+	mov [Gfx_x2], ax
+	; RHS is pure optimization
+	mov ax, [y]
+	; Forcetype IS POINTER: 0
+	add  ax, 0x64
+	mov [Gfx_y2], ax
+	mov ax, [logo_color]
+	mov ah,0 ; forcetype clear high bit
+	mov [Gfx_color], ax
+	; Assigning pointer
+	les di, [Screen_buffer1]
+	mov [Gfx_addr+2], es
+	mov [Gfx_addr], di
+	call Gfx_DrawSquare
+	; LineNumber: 123
+	; RHS is pure optimization
+	mov ax, [x]
+	; Forcetype IS POINTER: 0
+	add  ax, 0x3c
+	mov [Gfx_x1], ax
+	; RHS is pure optimization
+	mov ax, [y]
+	; Forcetype IS POINTER: 0
+	add  ax, 0x28
+	mov [Gfx_y1], ax
+	; RHS is pure optimization
+	mov ax, [x]
+	; Forcetype IS POINTER: 0
+	add  ax, 0x41
+	mov [Gfx_x2], ax
+	; RHS is pure optimization
+	mov ax, [y]
+	; Forcetype IS POINTER: 0
+	add  ax, 0x2d
+	mov [Gfx_y2], ax
+	mov ax, [logo_color]
+	mov ah,0 ; forcetype clear high bit
+	mov [Gfx_color], ax
+	; Assigning pointer
+	les di, [Screen_buffer1]
+	mov [Gfx_addr+2], es
+	mov [Gfx_addr], di
+	call Gfx_DrawSquare
+	; LineNumber: 124
+	; RHS is pure optimization
+	mov ax, [x]
+	; Forcetype IS POINTER: 0
 	add  ax, 0x3c
 	mov [Gfx_x1], ax
 	; RHS is pure optimization
@@ -2372,13 +2433,15 @@ LogoAnimatedDraw:
 	; Forcetype IS POINTER: 0
 	add  ax, 0x37
 	mov [Gfx_y2], ax
-	mov [Gfx_color], word 0x50
+	mov ax, [logo_color]
+	mov ah,0 ; forcetype clear high bit
+	mov [Gfx_color], ax
 	; Assigning pointer
 	les di, [Screen_buffer1]
 	mov [Gfx_addr+2], es
 	mov [Gfx_addr], di
 	call Gfx_DrawSquare
-	; LineNumber: 121
+	; LineNumber: 125
 	; RHS is pure optimization
 	mov ax, [x]
 	; Forcetype IS POINTER: 0
@@ -2399,13 +2462,15 @@ LogoAnimatedDraw:
 	; Forcetype IS POINTER: 0
 	add  ax, 0x2d
 	mov [Gfx_y2], ax
-	mov [Gfx_color], word 0x40
+	mov ax, [logo_color]
+	mov ah,0 ; forcetype clear high bit
+	mov [Gfx_color], ax
 	; Assigning pointer
 	les di, [Screen_buffer1]
 	mov [Gfx_addr+2], es
 	mov [Gfx_addr], di
 	call Gfx_DrawSquare
-	; LineNumber: 122
+	; LineNumber: 126
 	; RHS is pure optimization
 	mov ax, [x]
 	; Forcetype IS POINTER: 0
@@ -2426,13 +2491,15 @@ LogoAnimatedDraw:
 	; Forcetype IS POINTER: 0
 	add  ax, 0x37
 	mov [Gfx_y2], ax
-	mov [Gfx_color], word 0x50
+	mov ax, [logo_color]
+	mov ah,0 ; forcetype clear high bit
+	mov [Gfx_color], ax
 	; Assigning pointer
 	les di, [Screen_buffer1]
 	mov [Gfx_addr+2], es
 	mov [Gfx_addr], di
 	call Gfx_DrawSquare
-	; LineNumber: 123
+	; LineNumber: 127
 	; RHS is pure optimization
 	mov ax, [x]
 	; Forcetype IS POINTER: 0
@@ -2453,35 +2520,26 @@ LogoAnimatedDraw:
 	; Forcetype IS POINTER: 0
 	add  ax, 0x32
 	mov [Gfx_y2], ax
-	mov [Gfx_color], word 0x70
+	mov ax, [logo_color]
+	mov ah,0 ; forcetype clear high bit
+	mov [Gfx_color], ax
 	; Assigning pointer
 	les di, [Screen_buffer1]
 	mov [Gfx_addr+2], es
 	mov [Gfx_addr], di
 	call Gfx_DrawSquare
-	; LineNumber: 124
+	; LineNumber: 128
 	ret
-end_procedure_LogoAnimatedDraw:
+end_procedure_P1XLogoDraw:
 	; ***********  Defining procedure : SceneIntroRender
 	;    Procedure type : User-defined procedure
-	; LineNumber: 127
+	; LineNumber: 131
 SceneIntroRender:
-	; LineNumber: 128
-	; RHS is pure optimization
-	mov ax, 0x20
-	mov bx,ax
-	mov ax, [scene_time]
-	xor dx,dx
-	div bx
-	mov ax,dx
-	; Forcetype IS POINTER: 0
-	add  al, 0x40
-	mov [Fonts_addValue], al
-	; LineNumber: 148
+	; LineNumber: 151
 	mov [i], word 0x0
 SceneIntroRender_forloop277:
-	; LineNumber: 131
-	; LineNumber: 132
+	; LineNumber: 134
+	; LineNumber: 135
 	;Is array index
 	; Assign value to regular array
 	; Generic add/sub
@@ -2495,7 +2553,7 @@ SceneIntroRender_forloop277:
 	mov di,[i] ; index is word
 	shl di,1
 	mov [stars_particle_particle_z+di], ax
-	; LineNumber: 133
+	; LineNumber: 136
 	; Binary clause Simplified: LESSEQUAL
 	; Compare with pure num / var optimization
 	mov di,[i] ; index is word
@@ -2504,7 +2562,7 @@ SceneIntroRender_forloop277:
 	cmp ax,0x0
 	jg SceneIntroRender_elsedoneblock300
 SceneIntroRender_ConditionalTrueBlock298: ;Main true block ;keep :
-	; LineNumber: 132
+	; LineNumber: 135
 	;Is array index
 	; Assign value to regular array
 	mov ax, 0xff
@@ -2512,7 +2570,7 @@ SceneIntroRender_ConditionalTrueBlock298: ;Main true block ;keep :
 	shl di,1
 	mov [stars_particle_particle_z+di], ax
 SceneIntroRender_elsedoneblock300:
-	; LineNumber: 135
+	; LineNumber: 138
 	; RHS is pure optimization
 	mov di,[i] ; index is word
 	shl di,1 ; Accomodate for word
@@ -2520,7 +2578,7 @@ SceneIntroRender_elsedoneblock300:
 	; Forcetype IS POINTER: 0
 	add  ax, 0x1388
 	mov [sx], ax
-	; LineNumber: 136
+	; LineNumber: 139
 	; RHS is pure optimization
 	mov di,[i] ; index is word
 	shl di,1 ; Accomodate for word
@@ -2528,12 +2586,12 @@ SceneIntroRender_elsedoneblock300:
 	; Forcetype IS POINTER: 0
 	add  ax, 0x1388
 	mov [sy], ax
-	; LineNumber: 137
+	; LineNumber: 140
 	mov di,[i] ; index is word
 	shl di,1 ; Accomodate for word
 	mov ax, [stars_particle_particle_z+di]
 	mov [sz], ax
-	; LineNumber: 138
+	; LineNumber: 141
 	; RHS is pure optimization
 	mov ax, [sx]
 	xor dx,dx
@@ -2543,7 +2601,7 @@ SceneIntroRender_elsedoneblock300:
 	; Forcetype IS POINTER: 0
 	add  ax, 0xa0
 	mov [x], ax
-	; LineNumber: 139
+	; LineNumber: 142
 	; RHS is pure optimization
 	mov ax, [sy]
 	xor dx,dx
@@ -2552,7 +2610,7 @@ SceneIntroRender_elsedoneblock300:
 	; Forcetype IS POINTER: 0
 	add  ax, 0x64
 	mov [y], ax
-	; LineNumber: 141
+	; LineNumber: 144
 	; Generic add/sub
 	mov ax, 0x3f
 	mov di,[sz] ; index is word
@@ -2560,7 +2618,7 @@ SceneIntroRender_elsedoneblock300:
 	mov bh,0 ; forcetype clear high bit
 	sub  ax,bx; bop
 	mov [color], ax
-	; LineNumber: 143
+	; LineNumber: 146
 	; Binary clause Simplified: GREATER
 	; Compare with pure num / var optimization
 	cmp [x],word 0x0
@@ -2584,8 +2642,8 @@ SceneIntroRender_localsuccess310: ;keep:
 	cmp [y],word 0xc8
 	jae SceneIntroRender_elsedoneblock306
 SceneIntroRender_ConditionalTrueBlock304: ;Main true block ;keep :
-	; LineNumber: 144
-	; LineNumber: 145
+	; LineNumber: 147
+	; LineNumber: 148
 	mov ax, [x]
 	mov [Gfx_x1], ax
 	mov ax, [y]
@@ -2597,7 +2655,7 @@ SceneIntroRender_ConditionalTrueBlock304: ;Main true block ;keep :
 	mov [Gfx_buffer+2], es
 	mov [Gfx_buffer], di
 	call Gfx_PutPixel
-	; LineNumber: 146
+	; LineNumber: 149
 SceneIntroRender_elsedoneblock306:
 SceneIntroRender_loopstart278:
 	add [i],word 1
@@ -2605,42 +2663,144 @@ SceneIntroRender_loopstart278:
 	cmp ax,word [i]
 	jne SceneIntroRender_forloop277
 SceneIntroRender_loopend279:
-	; LineNumber: 148
-	call LogoAnimatedDraw
-	; LineNumber: 149
+	; LineNumber: 152
+	; Binary clause Simplified: LESS
+	; RHS is pure optimization
+	mov ax, [current_scene_len]
+	; Forcetype IS POINTER: 0
+	sub  ax, [scene_time]
+	cmp  ax, 0xc8
+	jae SceneIntroRender_elseblock314
+SceneIntroRender_localsuccess324: ;keep:
+	; ; logical AND, second requirement
+	; Binary clause Simplified: GREATER
+	; Compare with pure num / var optimization
+	cmp [scene_intro_color],byte 0x2
+	jbe SceneIntroRender_elseblock314
+SceneIntroRender_ConditionalTrueBlock313: ;Main true block ;keep :
+	; LineNumber: 153
+	; LineNumber: 154
+	; 'a:=a + const'  optimization 
+	sub [scene_intro_color], byte 0x2
+	; LineNumber: 156
+	jmp SceneIntroRender_elsedoneblock315
+SceneIntroRender_elseblock314:
+	; LineNumber: 157
+	; LineNumber: 158
+	; Binary clause Simplified: LESS
+	; Compare with pure num / var optimization
+	cmp [scene_intro_color],byte 0x3f
+	jae SceneIntroRender_elsedoneblock330
+SceneIntroRender_ConditionalTrueBlock328: ;Main true block ;keep :
+	; LineNumber: 157
+	; 'a:=a + const'  optimization 
+	add [scene_intro_color], byte 0x1
+SceneIntroRender_elsedoneblock330:
+	; LineNumber: 159
+SceneIntroRender_elsedoneblock315:
+	; LineNumber: 160
+	mov al, [scene_intro_color]
+	mov [logo_color], al
+	call P1XLogoDraw
+	; LineNumber: 162
+	mov ax, 0xff
+	mov bx,ax
+	mov ax, [scene_time]
+	xor dx,dx
+	div bx
+	mov ax,dx
+	mov di,ax
+	mov ax, [sin32+di]
+	mov ah,0 ; forcetype clear high bit
+	mov [y], ax
+	; LineNumber: 163
+	mov al, [scene_intro_color]
+	xor ah,ah
+	mov bl, 0x2
+	div  bl
+	mov [Fonts_addValue], al
+	; LineNumber: 164
+	mov [Fonts_maskColor], byte 0x1
+	; LineNumber: 165
 	; Assigning pointer
 	les di, [tp]
 	mov [Fonts_tp+2], es
 	mov [Fonts_tp], di
-	; Generic add/sub
-	mov ax, 0xa0
-	mov bx,es
-	mov cx, 0x5
-	push ax
-	mov ax,bx
-	mul  cx
-	mov bx,ax
-	pop ax
-	sub  ax,bx; bop
-	mov [Fonts_x], ax
-	mov [Fonts_y], word 0xaa
+	mov [Fonts_x], word 0xa
+	; RHS is pure optimization
+	mov ax, 0xaa
+	; Forcetype IS POINTER: 0
+	sub  ax, [y]
+	mov [Fonts_y], ax
 	; Assigning pointer
 	les di, [Screen_buffer1]
 	mov [Fonts_dst2+2], es
 	mov [Fonts_dst2], di
 	call Fonts_PrintString
-	; LineNumber: 150
+	; LineNumber: 166
+	; Binary clause Simplified: GREATER
+	; Compare with pure num / var optimization
+	cmp [scene_intro_color],byte 0x5
+	jbe SceneIntroRender_elsedoneblock336
+SceneIntroRender_ConditionalTrueBlock334: ;Main true block ;keep :
+	; LineNumber: 165
+	; RHS is pure optimization
+	mov al, [scene_intro_color]
+	; Forcetype IS POINTER: 0
+	sub  al, 0x5
+	mov [Fonts_addValue], al
+SceneIntroRender_elsedoneblock336:
+	; LineNumber: 167
+	mov [Fonts_maskColor], byte 0x2
+	; LineNumber: 168
+	; Assigning pointer
+	les di, [tp]
+	mov [Fonts_tp+2], es
+	mov [Fonts_tp], di
+	mov [Fonts_x], word 0xa
+	; RHS is pure optimization
+	mov ax, 0xaa
+	; Forcetype IS POINTER: 0
+	sub  ax, [y]
+	mov [Fonts_y], ax
+	; Assigning pointer
+	les di, [Screen_buffer1]
+	mov [Fonts_dst2+2], es
+	mov [Fonts_dst2], di
+	call Fonts_PrintString
+	; LineNumber: 169
+	mov al, [scene_intro_color]
+	mov [Fonts_addValue], al
+	; LineNumber: 170
+	mov [Fonts_maskColor], byte 0x3
+	; LineNumber: 171
+	; Assigning pointer
+	les di, [tp]
+	mov [Fonts_tp+2], es
+	mov [Fonts_tp], di
+	mov [Fonts_x], word 0xa
+	; RHS is pure optimization
+	mov ax, 0xaa
+	; Forcetype IS POINTER: 0
+	sub  ax, [y]
+	mov [Fonts_y], ax
+	; Assigning pointer
+	les di, [Screen_buffer1]
+	mov [Fonts_dst2+2], es
+	mov [Fonts_dst2], di
+	call Fonts_PrintString
+	; LineNumber: 173
 	ret
 end_procedure_SceneIntroRender:
 	; ***********  Defining procedure : SceneIntroReset
 	;    Procedure type : User-defined procedure
-	; LineNumber: 153
+	; LineNumber: 176
 SceneIntroReset:
-	; LineNumber: 161
+	; LineNumber: 184
 	mov [i], word 0x0
-SceneIntroReset_forloop313:
-	; LineNumber: 155
-	; LineNumber: 156
+SceneIntroReset_forloop340:
+	; LineNumber: 178
+	; LineNumber: 179
 	;Is array index
 	; Assign value to regular array
 	; Generic add/sub
@@ -2655,7 +2815,7 @@ SceneIntroReset_forloop313:
 	mov di,[i] ; index is word
 	shl di,1
 	mov [stars_particle_particle_x+di], ax
-	; LineNumber: 157
+	; LineNumber: 180
 	;Is array index
 	; Assign value to regular array
 	; Generic add/sub
@@ -2670,7 +2830,7 @@ SceneIntroReset_forloop313:
 	mov di,[i] ; index is word
 	shl di,1
 	mov [stars_particle_particle_y+di], ax
-	; LineNumber: 158
+	; LineNumber: 181
 	;Is array index
 	; Assign value to regular array
 	; RHS is pure optimization
@@ -2685,7 +2845,7 @@ SceneIntroReset_forloop313:
 	mov di,[i] ; index is word
 	shl di,1
 	mov [stars_particle_particle_z+di], ax
-	; LineNumber: 159
+	; LineNumber: 182
 	;Is array index
 	; Assign value to regular array
 	; Generic add/sub
@@ -2700,37 +2860,37 @@ SceneIntroReset_forloop313:
 	mov di,[i] ; index is word
 	shl di,1
 	mov [stars_particle_particle_speed+di], ax
-	; LineNumber: 160
-SceneIntroReset_loopstart314:
+	; LineNumber: 183
+SceneIntroReset_loopstart341:
 	add [i],word 1
 	mov ax, 0x12c
 	cmp ax,word [i]
-	jne SceneIntroReset_forloop313
-SceneIntroReset_loopend315:
-	; LineNumber: 161
+	jne SceneIntroReset_forloop340
+SceneIntroReset_loopend342:
+	; LineNumber: 184
 	; Assigning pointer
 	lea si, [intro_text]
 	mov [tp+2], ds
 	mov [tp], si
-	; LineNumber: 162
-	mov [current_scene_len], word 0x12c
-	; LineNumber: 163
+	; LineNumber: 185
+	mov [current_scene_len], word 0x1f4
+	; LineNumber: 186
 	ret
 end_procedure_SceneIntroReset:
 	; ***********  Defining procedure : SceneHighwaySkyLineDraw
 	;    Procedure type : User-defined procedure
-	; LineNumber: 169
-	; LineNumber: 167
+	; LineNumber: 192
+	; LineNumber: 190
 levels:	dw	0
-	; LineNumber: 168
+	; LineNumber: 191
 size:	dw	0
-SceneHighwaySkyLineDraw_block318:
+SceneHighwaySkyLineDraw_block345:
 SceneHighwaySkyLineDraw:
-	; LineNumber: 175
+	; LineNumber: 198
 	mov [i], word 0x0
-SceneHighwaySkyLineDraw_forloop319:
-	; LineNumber: 172
-	; LineNumber: 173
+SceneHighwaySkyLineDraw_forloop346:
+	; LineNumber: 195
+	; LineNumber: 196
 	mov [Gfx_x1], word 0x0
 	mov [Gfx_x2], word 0x140
 	mov ax, [i]
@@ -2752,14 +2912,14 @@ SceneHighwaySkyLineDraw_forloop319:
 	mov [Gfx_addr+2], es
 	mov [Gfx_addr], di
 	call Gfx_Hline
-	; LineNumber: 174
-SceneHighwaySkyLineDraw_loopstart320:
+	; LineNumber: 197
+SceneHighwaySkyLineDraw_loopstart347:
 	add [i],word 1
 	mov ax, 0x50
 	cmp ax,word [i]
-	jne SceneHighwaySkyLineDraw_forloop319
-SceneHighwaySkyLineDraw_loopend321:
-	; LineNumber: 176
+	jne SceneHighwaySkyLineDraw_forloop346
+SceneHighwaySkyLineDraw_loopend348:
+	; LineNumber: 199
 	mov [Gfx_x1], word 0x0
 	mov [Gfx_x2], word 0x140
 	mov [Gfx_y], word 0x50
@@ -2769,14 +2929,14 @@ SceneHighwaySkyLineDraw_loopend321:
 	mov [Gfx_addr+2], es
 	mov [Gfx_addr], di
 	call Gfx_Hline
-	; LineNumber: 178
+	; LineNumber: 201
 	mov [Fonts_addValue], byte 0x5a
-	; LineNumber: 179
+	; LineNumber: 202
 	; Assigning pointer
 	lea si, [date_text]
 	mov [tp+2], ds
 	mov [tp], si
-	; LineNumber: 180
+	; LineNumber: 203
 	; Assigning pointer
 	les di, [tp]
 	mov [Fonts_tp+2], es
@@ -2798,22 +2958,22 @@ SceneHighwaySkyLineDraw_loopend321:
 	mov [Fonts_dst2+2], es
 	mov [Fonts_dst2], di
 	call Fonts_PrintString
-	; LineNumber: 189
+	; LineNumber: 212
 	mov [i], word 0x0
-SceneHighwaySkyLineDraw_forloop324:
-	; LineNumber: 183
-	; LineNumber: 184
+SceneHighwaySkyLineDraw_forloop351:
+	; LineNumber: 206
+	; LineNumber: 207
 	; RHS is pure optimization
 	mov ax, 0x20
 	; Forcetype IS POINTER: 0
 	add  ax, [i]
 	mov [x], ax
-	; LineNumber: 185
+	; LineNumber: 208
 	mov di,[i] ; index is word
 	shl di,1 ; Accomodate for word
 	mov ax, [skyline_distribution+di]
 	mov [levels], ax
-	; LineNumber: 186
+	; LineNumber: 209
 	; Generic add/sub
 	mov ax, 0x4
 	mov bx, [i]
@@ -2829,7 +2989,7 @@ SceneHighwaySkyLineDraw_forloop324:
 	mov bx, [skyline_sizes+di]
 	add  ax,bx; bop
 	mov [size], ax
-	; LineNumber: 187
+	; LineNumber: 210
 	mov ax, [x]
 	mov [Gfx_x1], ax
 	; RHS is pure optimization
@@ -2849,30 +3009,30 @@ SceneHighwaySkyLineDraw_forloop324:
 	mov [Gfx_addr+2], es
 	mov [Gfx_addr], di
 	call Gfx_DrawSquare
-	; LineNumber: 188
-SceneHighwaySkyLineDraw_loopstart325:
+	; LineNumber: 211
+SceneHighwaySkyLineDraw_loopstart352:
 	mov ax, 0x10
 	mov cx,ax
 	add [i],cx
 	mov ax, 0x100
 	cmp ax,word [i]
-	jne SceneHighwaySkyLineDraw_forloop324
-SceneHighwaySkyLineDraw_loopend326:
-	; LineNumber: 189
+	jne SceneHighwaySkyLineDraw_forloop351
+SceneHighwaySkyLineDraw_loopend353:
+	; LineNumber: 212
 	ret
 end_procedure_SceneHighwaySkyLineDraw:
 	; ***********  Defining procedure : SceneHighwayTerrainDraw
 	;    Procedure type : User-defined procedure
-	; LineNumber: 194
-	; LineNumber: 193
+	; LineNumber: 217
+	; LineNumber: 216
 factor2:	dw	0
-SceneHighwayTerrainDraw_block329:
+SceneHighwayTerrainDraw_block356:
 SceneHighwayTerrainDraw:
-	; LineNumber: 211
+	; LineNumber: 234
 	mov [i], word 0x0
-SceneHighwayTerrainDraw_forloop330:
-	; LineNumber: 196
-	; LineNumber: 197
+SceneHighwayTerrainDraw_forloop357:
+	; LineNumber: 219
+	; LineNumber: 220
 	; Generic add/sub
 	mov ax, 0x1
 	mov bx, [i]
@@ -2891,7 +3051,7 @@ SceneHighwayTerrainDraw_forloop330:
 	pop ax
 	add  ax,bx; bop
 	mov [factor], ax
-	; LineNumber: 198
+	; LineNumber: 221
 	; Generic add/sub
 	mov ax, 0x1
 	; RHS is pure optimization
@@ -2913,7 +3073,7 @@ SceneHighwayTerrainDraw_forloop330:
 	pop ax
 	add  ax,bx; bop
 	mov [factor2], ax
-	; LineNumber: 199
+	; LineNumber: 222
 	; Generic add/sub
 	mov ax, 0x3f
 	mov di,[i] ; index is word
@@ -2921,21 +3081,21 @@ SceneHighwayTerrainDraw_forloop330:
 	mov bx, [depth_color+di]
 	sub  ax,bx; bop
 	mov [color], ax
-	; LineNumber: 200
+	; LineNumber: 223
 	; Generic add/sub
 	mov ax, 0x7f
 	mov di,[i] ; index is word
 	shl di,1 ; Accomodate for word
 	sub  ax,bx; bop
 	mov [color2], ax
-	; LineNumber: 201
+	; LineNumber: 224
 	; Generic add/sub
 	mov ax, 0xff
 	mov di,[i] ; index is word
 	shl di,1 ; Accomodate for word
 	sub  ax,bx; bop
 	mov [c], ax
-	; LineNumber: 203
+	; LineNumber: 226
 	mov [Gfx_x1], word 0x0
 	; RHS is pure optimization
 	mov ax, 0xa0
@@ -2954,7 +3114,7 @@ SceneHighwayTerrainDraw_forloop330:
 	mov [Gfx_addr+2], es
 	mov [Gfx_addr], di
 	call Gfx_Hline
-	; LineNumber: 204
+	; LineNumber: 227
 	; RHS is pure optimization
 	mov ax, 0xa0
 	; Forcetype IS POINTER: 0
@@ -2977,7 +3137,7 @@ SceneHighwayTerrainDraw_forloop330:
 	mov [Gfx_addr+2], es
 	mov [Gfx_addr], di
 	call Gfx_Hline
-	; LineNumber: 205
+	; LineNumber: 228
 	; Binary clause Simplified: GREATER
 	mov ax, 0x14
 	mov bx,ax
@@ -2989,10 +3149,10 @@ SceneHighwayTerrainDraw_forloop330:
 	div bx
 	mov ax,dx
 	cmp  al, 0xf
-	jbe SceneHighwayTerrainDraw_elsedoneblock344
-SceneHighwayTerrainDraw_ConditionalTrueBlock342: ;Main true block ;keep :
-	; LineNumber: 206
-	; LineNumber: 207
+	jbe SceneHighwayTerrainDraw_elsedoneblock371
+SceneHighwayTerrainDraw_ConditionalTrueBlock369: ;Main true block ;keep :
+	; LineNumber: 229
+	; LineNumber: 230
 	; Generic add/sub
 	mov ax, 0xa0
 	mov bx, [factor]
@@ -3028,9 +3188,9 @@ SceneHighwayTerrainDraw_ConditionalTrueBlock342: ;Main true block ;keep :
 	mov [Gfx_addr+2], es
 	mov [Gfx_addr], di
 	call Gfx_Hline
-	; LineNumber: 208
-SceneHighwayTerrainDraw_elsedoneblock344:
-	; LineNumber: 209
+	; LineNumber: 231
+SceneHighwayTerrainDraw_elsedoneblock371:
+	; LineNumber: 232
 	; RHS is pure optimization
 	mov ax, 0xa0
 	; Forcetype IS POINTER: 0
@@ -3049,56 +3209,56 @@ SceneHighwayTerrainDraw_elsedoneblock344:
 	mov [Gfx_addr+2], es
 	mov [Gfx_addr], di
 	call Gfx_Hline
-	; LineNumber: 210
-SceneHighwayTerrainDraw_loopstart331:
+	; LineNumber: 233
+SceneHighwayTerrainDraw_loopstart358:
 	add [i],word 1
 	mov ax, 0x78
 	cmp ax,word [i]
-	jne SceneHighwayTerrainDraw_forloop330
-SceneHighwayTerrainDraw_loopend332:
-	; LineNumber: 211
+	jne SceneHighwayTerrainDraw_forloop357
+SceneHighwayTerrainDraw_loopend359:
+	; LineNumber: 234
 	ret
 end_procedure_SceneHighwayTerrainDraw:
 	; ***********  Defining procedure : SceneHighwayCarDraw
 	;    Procedure type : User-defined procedure
-	; LineNumber: 214
+	; LineNumber: 237
 SceneHighwayCarDraw:
-	; LineNumber: 216
+	; LineNumber: 239
 	ret
 end_procedure_SceneHighwayCarDraw:
 	; ***********  Defining procedure : SceneHighwayReset
 	;    Procedure type : User-defined procedure
-	; LineNumber: 219
+	; LineNumber: 242
 SceneHighwayReset:
-	; LineNumber: 220
+	; LineNumber: 243
 	mov [current_scene_len], word 0x7d0
-	; LineNumber: 221
+	; LineNumber: 244
 	call SceneHighwaySkyLineDraw
-	; LineNumber: 222
+	; LineNumber: 245
 	call SceneHighwayTerrainDraw
-	; LineNumber: 223
+	; LineNumber: 246
 	ret
 end_procedure_SceneHighwayReset:
 	; ***********  Defining procedure : SceneHighwayRender
 	;    Procedure type : User-defined procedure
-	; LineNumber: 225
+	; LineNumber: 248
 SceneHighwayRender:
-	; LineNumber: 229
+	; LineNumber: 252
 	
 ; // once 2 sec refresh city
 	call SceneHighwayTerrainDraw
-	; LineNumber: 230
+	; LineNumber: 253
 	call SceneHighwayCarDraw
-	; LineNumber: 231
+	; LineNumber: 254
 	ret
 end_procedure_SceneHighwayRender:
 	; ***********  Defining procedure : SceneOutroRender
 	;    Procedure type : User-defined procedure
-	; LineNumber: 235
+	; LineNumber: 258
 SceneOutroRender:
-	; LineNumber: 236
+	; LineNumber: 259
 	mov [Fonts_addValue], byte 0x80
-	; LineNumber: 237
+	; LineNumber: 260
 	; Assigning pointer
 	les di, [tp]
 	mov [Fonts_tp+2], es
@@ -3120,31 +3280,31 @@ SceneOutroRender:
 	mov [Fonts_dst2+2], es
 	mov [Fonts_dst2], di
 	call Fonts_PrintString
-	; LineNumber: 238
+	; LineNumber: 261
 	ret
 end_procedure_SceneOutroRender:
 	; ***********  Defining procedure : SceneOutroReset
 	;    Procedure type : User-defined procedure
-	; LineNumber: 241
+	; LineNumber: 264
 SceneOutroReset:
-	; LineNumber: 242
+	; LineNumber: 265
 	; Assigning pointer
 	lea si, [outro_text]
 	mov [tp+2], ds
 	mov [tp], si
-	; LineNumber: 243
+	; LineNumber: 266
 	mov [current_scene_len], word 0x1e
-	; LineNumber: 244
+	; LineNumber: 267
 	ret
 end_procedure_SceneOutroReset:
 	; ***********  Defining procedure : ResetScene
 	;    Procedure type : User-defined procedure
-	; LineNumber: 247
-	; LineNumber: 246
+	; LineNumber: 270
+	; LineNumber: 269
 scene_to_reset:	dw	0
-ResetScene_block352:
+ResetScene_block379:
 ResetScene:
-	; LineNumber: 248
+	; LineNumber: 271
 	; Assigning pointer
 	les di, [Screen_buffer1]
 	mov [Screen_dest+2], es
@@ -3152,54 +3312,54 @@ ResetScene:
 	; Assigning to register
 	mov ax, 0x0
 	call Screen_ClearBuffer32bit
-	; LineNumber: 249
+	; LineNumber: 272
 	mov ax, [scene_to_reset]
 	mov bx, 0x0
 	cmp ax,bx
-	jne ResetScene_casenext354
-	; LineNumber: 250
-	; LineNumber: 251
+	jne ResetScene_casenext381
+	; LineNumber: 273
+	; LineNumber: 274
 	call SceneIntroReset
-	; LineNumber: 252
-	jmp ResetScene_caseend353
-ResetScene_casenext354:
+	; LineNumber: 275
+	jmp ResetScene_caseend380
+ResetScene_casenext381:
 	mov ax, [scene_to_reset]
 	mov bx, 0x1
 	cmp ax,bx
-	jne ResetScene_casenext356
-	; LineNumber: 253
-	; LineNumber: 254
+	jne ResetScene_casenext383
+	; LineNumber: 276
+	; LineNumber: 277
 	call SceneHighwayReset
-	; LineNumber: 255
-	jmp ResetScene_caseend353
-ResetScene_casenext356:
+	; LineNumber: 278
+	jmp ResetScene_caseend380
+ResetScene_casenext383:
 	mov ax, [scene_to_reset]
 	mov bx, 0x2
 	cmp ax,bx
-	jne ResetScene_casenext358
-	; LineNumber: 256
-	; LineNumber: 257
+	jne ResetScene_casenext385
+	; LineNumber: 279
+	; LineNumber: 280
 	call SceneOutroReset
-	; LineNumber: 258
-ResetScene_casenext358:
-ResetScene_caseend353:
-	; LineNumber: 260
+	; LineNumber: 281
+ResetScene_casenext385:
+ResetScene_caseend380:
+	; LineNumber: 283
 	ret
 end_procedure_ResetScene:
 	; ***********  Defining procedure : RenderScene
 	;    Procedure type : User-defined procedure
-	; LineNumber: 263
-	; LineNumber: 262
+	; LineNumber: 286
+	; LineNumber: 285
 scene_to_render:	dw	0
-RenderScene_block360:
+RenderScene_block387:
 RenderScene:
-	; LineNumber: 264
+	; LineNumber: 287
 	mov ax, [scene_to_render]
 	mov bx, 0x0
 	cmp ax,bx
-	jne RenderScene_casenext362
-	; LineNumber: 265
-	; LineNumber: 266
+	jne RenderScene_casenext389
+	; LineNumber: 288
+	; LineNumber: 289
 	; Assigning pointer
 	les di, [Screen_buffer1]
 	mov [Screen_dest+2], es
@@ -3207,27 +3367,27 @@ RenderScene:
 	; Assigning to register
 	mov ax, 0x0
 	call Screen_ClearBuffer32bit
-	; LineNumber: 267
+	; LineNumber: 290
 	call SceneIntroRender
-	; LineNumber: 268
-	jmp RenderScene_caseend361
-RenderScene_casenext362:
+	; LineNumber: 291
+	jmp RenderScene_caseend388
+RenderScene_casenext389:
 	mov ax, [scene_to_render]
 	mov bx, 0x1
 	cmp ax,bx
-	jne RenderScene_casenext364
-	; LineNumber: 269
-	; LineNumber: 270
+	jne RenderScene_casenext391
+	; LineNumber: 292
+	; LineNumber: 293
 	call SceneHighwayRender
-	; LineNumber: 271
-	jmp RenderScene_caseend361
-RenderScene_casenext364:
+	; LineNumber: 294
+	jmp RenderScene_caseend388
+RenderScene_casenext391:
 	mov ax, [scene_to_render]
 	mov bx, 0x2
 	cmp ax,bx
-	jne RenderScene_casenext366
-	; LineNumber: 272
-	; LineNumber: 273
+	jne RenderScene_casenext393
+	; LineNumber: 295
+	; LineNumber: 296
 	; Assigning pointer
 	les di, [Screen_buffer1]
 	mov [Screen_dest+2], es
@@ -3235,88 +3395,88 @@ RenderScene_casenext364:
 	; Assigning to register
 	mov ax, 0x0
 	call Screen_ClearBuffer32bit
-	; LineNumber: 274
+	; LineNumber: 297
 	call SceneOutroRender
-	; LineNumber: 275
-RenderScene_casenext366:
-RenderScene_caseend361:
-	; LineNumber: 277
+	; LineNumber: 298
+RenderScene_casenext393:
+RenderScene_caseend388:
+	; LineNumber: 300
 	ret
 end_procedure_RenderScene:
 	; ***********  Defining procedure : RasterIRQ
 	;    Procedure type : User-defined procedure
-	; LineNumber: 281
+	; LineNumber: 304
 RasterIRQ:
-	; LineNumber: 282
+	; LineNumber: 305
 	pusha
 	push es
 	push ds
 	mov ax,192h ; reset DS 
 	mov ds,ax
-	; LineNumber: 283
+	; LineNumber: 306
 	call BeePlay_Update
-	; LineNumber: 284
+	; LineNumber: 307
 	call BeePlay_Play
-	; LineNumber: 285
+	; LineNumber: 308
 	; 'a:=a + const'  optimization 
 	add [time], word 0x1
-	; LineNumber: 286
+	; LineNumber: 309
 	; 'a:=a + const'  optimization 
 	add [scene_time], word 0x1
-	; LineNumber: 287
+	; LineNumber: 310
 	mov al,20h
 	out 20h,al
 	pop ds
 	pop es
 	popa
-	; LineNumber: 288
+	; LineNumber: 311
 	iret
 end_procedure_RasterIRQ:
 block1:
 main_block_begin_:
-	; LineNumber: 292
+	; LineNumber: 315
 	call Memory_Init
-	; LineNumber: 293
+	; LineNumber: 316
 	mov [Screen_i], word 0x13
 	call Screen_SetMode
-	; LineNumber: 294
+	; LineNumber: 317
 	mov [Screen_noBuffers], word 0x4
 	call Screen_InitVGABuffers
-	; LineNumber: 295
+	; LineNumber: 318
 	mov ax, [current_scene]
 	mov [scene_to_reset], ax
 	call ResetScene
-	; LineNumber: 296
+	; LineNumber: 319
 	mov ax, [current_scene]
 	mov [pal], ax
 	call SetPalette
-	; LineNumber: 298
+	; LineNumber: 321
 	; Assigning pointer
 	lea si, [song]
 	mov [BeePlay_zp+2], ds
 	mov [BeePlay_zp], si
 	call BeePlay_Initialize
-	; LineNumber: 299
+	; LineNumber: 322
 	mov [BeePlay_octShift], byte 0x1
-	; LineNumber: 300
+	; LineNumber: 323
 	
 ; // octave shift
 	;Is array index
 	; Assign value to regular array
 	mov ax, 0x2
 	mov [BeePlay_decayLength+0x00],ax
-	; LineNumber: 301
+	; LineNumber: 324
 	
 ; // Sustain of columm 0
 	;Is array index
 	; Assign value to regular array
 	mov ax, 0x4
 	mov [BeePlay_decayLength+0x02],ax
-	; LineNumber: 302
+	; LineNumber: 325
 	
 ; // Sustain of column 1
 	mov [BeePlay_speed], word 0x3
-	; LineNumber: 304
+	; LineNumber: 327
 	; Assigning pointer
 	lea si, [font]
 	mov [File_fp+2], ds
@@ -3326,7 +3486,7 @@ main_block_begin_:
 	mov [File_tp+2], es
 	mov [File_tp], di
 	call File_ReadAll
-	; LineNumber: 305
+	; LineNumber: 328
 	; Assigning pointer
 	les di, [Screen_buffer4]
 	mov [Compression_inb+2], es
@@ -3336,24 +3496,24 @@ main_block_begin_:
 	mov [Compression_outb+2], es
 	mov [Compression_outb], di
 	call Compression_Decompress
-	; LineNumber: 306
+	; LineNumber: 329
 	; Assigning pointer
 	les di, [Screen_buffer3]
 	mov [Fonts_data+2], es
 	mov [Fonts_data], di
-	mov [Fonts_font_size_x], word 0xa
-	mov [Fonts_font_size_y], word 0x10
-	mov [Fonts_font_columns], word 0x20
+	mov [Fonts_font_size_x], word 0x14
+	mov [Fonts_font_size_y], word 0x18
+	mov [Fonts_font_columns], word 0x10
 	mov [Fonts_shift], word 0x20
 	call Fonts_Init
-	; LineNumber: 307
+	; LineNumber: 330
 	mov [Fonts_writeType], word 0x1
-	; LineNumber: 308
+	; LineNumber: 331
 	mov [Fonts_maskColor], byte 0x1
-	; LineNumber: 310
+	; LineNumber: 333
 	mov [Memory_ticks], word 0x8444
 	call Memory_SetTimer
-	; LineNumber: 311
+	; LineNumber: 334
 	cli
 	; Install new ISR
 	mov al,0x8
@@ -3361,28 +3521,28 @@ main_block_begin_:
 	mov dx, RasterIRQ
 	int 21h
 	sti
-	; LineNumber: 313
-MainProgram_while369:
-MainProgram_loopstart373:
+	; LineNumber: 336
+MainProgram_while396:
+MainProgram_loopstart400:
 	; Binary clause Simplified: NOTEQUALS
 	; Compare with pure num / var optimization
 	; Compare two const numbers
 	mov ax,1
 	sub ax,2
-	je MainProgram_elsedoneblock372
-MainProgram_ConditionalTrueBlock370: ;Main true block ;keep :
-	; LineNumber: 314
-	; LineNumber: 315
+	je MainProgram_elsedoneblock399
+MainProgram_ConditionalTrueBlock397: ;Main true block ;keep :
+	; LineNumber: 337
+	; LineNumber: 338
 	mov dx, 0x3da
-MainProgram_vblank1397:
+MainProgram_vblank1424:
 	in al, dx
 	test al, 8
-	je MainProgram_vblank1397
-MainProgram_vblank2398:
+	je MainProgram_vblank1424
+MainProgram_vblank2425:
 	in al, dx
 	test al, 8
-	jne MainProgram_vblank2398
-	; LineNumber: 317
+	jne MainProgram_vblank2425
+	; LineNumber: 340
 	; Assigning pointer
 	les di, [Screen_buffer1]
 	mov [Screen_source+2], es
@@ -3397,52 +3557,52 @@ MainProgram_vblank2398:
 	mov [Screen_dest+2], es
 	mov [Screen_dest], di
 	call Screen_CopyVGABuffer32bit
-	; LineNumber: 319
+	; LineNumber: 342
 	; Binary clause Simplified: GREATER
 	; Compare two vars optimization
 	mov ax, [current_scene_len]
 	cmp  [scene_time],ax
-	jbe MainProgram_elsedoneblock402
-MainProgram_ConditionalTrueBlock400: ;Main true block ;keep :
-	; LineNumber: 320
-	; LineNumber: 321
+	jbe MainProgram_elsedoneblock429
+MainProgram_ConditionalTrueBlock427: ;Main true block ;keep :
+	; LineNumber: 343
+	; LineNumber: 344
 	; 'a:=a + const'  optimization 
 	add [current_scene], word 0x1
-	; LineNumber: 322
+	; LineNumber: 345
 	mov [scene_time], word 0x0
-	; LineNumber: 323
+	; LineNumber: 346
 	; Binary clause Simplified: GREATER
 	; Compare two vars optimization
 	mov ax, [last_scene]
 	cmp  [current_scene],ax
-	jbe MainProgram_elsedoneblock414
-MainProgram_ConditionalTrueBlock412: ;Main true block ;keep :
-	; LineNumber: 324
-	; LineNumber: 325
+	jbe MainProgram_elsedoneblock441
+MainProgram_ConditionalTrueBlock439: ;Main true block ;keep :
+	; LineNumber: 347
+	; LineNumber: 348
 	mov [current_scene], word 0x0
-	; LineNumber: 326
+	; LineNumber: 349
 	mov [time], word 0x0
-	; LineNumber: 327
-MainProgram_elsedoneblock414:
-	; LineNumber: 329
+	; LineNumber: 350
+MainProgram_elsedoneblock441:
+	; LineNumber: 352
 	mov ax, [current_scene]
 	mov [scene_to_reset], ax
 	call ResetScene
-	; LineNumber: 330
+	; LineNumber: 353
 	mov ax, [current_scene]
 	mov [pal], ax
 	call SetPalette
-	; LineNumber: 331
-MainProgram_elsedoneblock402:
-	; LineNumber: 334
+	; LineNumber: 354
+MainProgram_elsedoneblock429:
+	; LineNumber: 357
 	mov ax, [current_scene]
 	mov [scene_to_render], ax
 	call RenderScene
-	; LineNumber: 336
+	; LineNumber: 359
 	call DrawPalette
-	; LineNumber: 337
-	jmp MainProgram_while369
-MainProgram_elsedoneblock372:
-MainProgram_loopend374:
-	; LineNumber: 339
+	; LineNumber: 360
+	jmp MainProgram_while396
+MainProgram_elsedoneblock399:
+MainProgram_loopend401:
+	; LineNumber: 362
 main_block_end_:

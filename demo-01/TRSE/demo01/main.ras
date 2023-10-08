@@ -11,11 +11,12 @@ program demo01;
 
 var	
 	@export "music/tune1.trt" "music.bin" 3
-	song: incbin("music.bin");
-	
 	@export "fonts/font.flf" "fonts/font.bin" 255
 	@compress "fonts/font.bin" "font.bin"
+	
+	song: incbin("music.bin");
 	font: string="font.bin";
+	//font_pal: string="fonts/font.pal";
 	
 	i,time,scene_time : integer = 0;
 	color,color2,c : integer = 0;
@@ -41,7 +42,7 @@ var
 	factor : integer;
 	
 	/* 
-    * SCENE LINES 
+    * SCENES
 	 */
 	x1,x2 : integer = 160;
 	y1,y2 : integer = 100;
@@ -52,7 +53,10 @@ var
 	
 	sinx : array[256] of integer = buildsinetable(320-line_width);
 	siny : array[256] of integer = buildsinetable(200-line_width);
-	grad : array[128] of byte = buildsinetable(64);
+	sin64 : array[128] of byte = buildsinetable(64);
+	sin32 : array[256] of byte = buildsinetable(32);
+	
+	scene_intro_color : byte = 0;
 	
 	/*
 	 * STRINGS
@@ -70,7 +74,7 @@ begin
 		0: begin						
 			for i:=0 to 64 do
 			begin	
-				c:=32+grad[i];				
+				c:=32+sin64[i];				
 				Screen::SetColor(i,		4+i/2,4+i/2,4+i/2);
 				Screen::SetColor(64+i,	63,63,63);
 			end;
@@ -79,7 +83,7 @@ begin
 		1: begin						
 			for i:=0 to 64 do
 			begin
-				c:=32+grad[i];	
+				c:=32+sin64[i];	
 				Screen::SetColor(i,		2+i/2,2+i/2,2+i/2);
 				Screen::SetColor(64+i,	i/4,i/2,i/4);
 				Screen::SetColor(128+i,	i/4,0,16-i/8);
@@ -98,35 +102,34 @@ begin
 end;
 
 
-procedure LogoAnimatedDraw();
+procedure P1XLogoDraw(logo_color:byte);
 begin
 	x:=120;
 	y:=40;
 	
-	Gfx::DrawSquare(x,y,x+5,y+100,64,Screen::buffer1);
-	Gfx::DrawSquare(x+5,y,x+25,y+5,64+16,Screen::buffer1);
-	Gfx::DrawSquare(x+5,y+55,x+25,y+60,64+48,Screen::buffer1);
-	Gfx::DrawSquare(x+25,y,x+30,y+60,64+32,Screen::buffer1);
+	Gfx::DrawSquare(x,y,x+5,y+100,logo_color,Screen::buffer1);
+	Gfx::DrawSquare(x+5,y,x+25,y+5,logo_color,Screen::buffer1);
+	Gfx::DrawSquare(x+5,y+55,x+25,y+60,logo_color,Screen::buffer1);
+	Gfx::DrawSquare(x+25,y,x+30,y+60,logo_color,Screen::buffer1);
 	
-	Gfx::DrawSquare(x+40,y,x+45,y+100,64+16,Screen::buffer1);
-	Gfx::DrawSquare(x+35,y+5,x+40,y+10,64,Screen::buffer1);
+	Gfx::DrawSquare(x+40,y,x+45,y+100,logo_color,Screen::buffer1);
+	Gfx::DrawSquare(x+35,y+5,x+40,y+10,logo_color,Screen::buffer1);
 	
-	Gfx::DrawSquare(x+55,y,x+60,y+40,64+48,Screen::buffer1);
-	Gfx::DrawSquare(x+75,y,x+80,y+40,64+32,Screen::buffer1);
-	Gfx::DrawSquare(x+55,y+55,x+60,y+100,64,Screen::buffer1);
-	Gfx::DrawSquare(x+75,y+55,x+80,y+100,64+16,Screen::buffer1);
+	Gfx::DrawSquare(x+55,y,x+60,y+40,logo_color,Screen::buffer1);
+	Gfx::DrawSquare(x+75,y,x+80,y+40,logo_color,Screen::buffer1);
+	Gfx::DrawSquare(x+55,y+55,x+60,y+100,logo_color,Screen::buffer1);
+	Gfx::DrawSquare(x+75,y+55,x+80,y+100,logo_color,Screen::buffer1);
 	
-	Gfx::DrawSquare(x+60,y+40,x+65,y+45,64+32,Screen::buffer1);
-	Gfx::DrawSquare(x+60,y+50,x+65,y+55,64+16,Screen::buffer1);
-	Gfx::DrawSquare(x+70,y+40,x+75,y+45,64,Screen::buffer1);
-	Gfx::DrawSquare(x+70,y+50,x+75,y+55,64+16,Screen::buffer1);
-	Gfx::DrawSquare(x+65,y+45,x+70,y+50,64+48,Screen::buffer1);
+	Gfx::DrawSquare(x+60,y+40,x+65,y+45,logo_color,Screen::buffer1);
+	Gfx::DrawSquare(x+60,y+50,x+65,y+55,logo_color,Screen::buffer1);
+	Gfx::DrawSquare(x+70,y+40,x+75,y+45,logo_color,Screen::buffer1);
+	Gfx::DrawSquare(x+70,y+50,x+75,y+55,logo_color,Screen::buffer1);
+	Gfx::DrawSquare(x+65,y+45,x+70,y+50,logo_color,Screen::buffer1);
 end;
 	
 procedure SceneIntroRender();
 begin
-	Fonts::addValue:=mod(scene_time,32)+64;
-
+	
 	for i:=0 to 300 do
 	begin
 		stars[i].z -= stars[i].speed;
@@ -145,8 +148,28 @@ begin
 			Gfx::PutPixel(x,y,color,Screen::buffer1);
 		end		
 	end;
-	LogoAnimatedDraw();
-	Fonts::PrintString(tp,160-(hi(tp))*5,170,Screen::buffer1);
+
+	if(current_scene_len-scene_time<200 and scene_intro_color>2) then 
+	begin
+	scene_intro_color-=2;
+	end
+	else
+	begin
+		if(scene_intro_color<63) then scene_intro_color+=1;
+	end;	
+	P1XLogoDraw(scene_intro_color);
+	
+	y:=sin32[mod(scene_time,255)];
+	Fonts::addValue:=scene_intro_color/2;
+	Fonts::maskColor := 1;
+	Fonts::PrintString(tp,10,170-y,Screen::buffer1);
+	if(scene_intro_color>5) then Fonts::addValue:=scene_intro_color-5;
+	Fonts::maskColor := 2;
+	Fonts::PrintString(tp,10,170-y,Screen::buffer1);
+	Fonts::addValue:=scene_intro_color;
+	Fonts::maskColor := 3;
+	Fonts::PrintString(tp,10,170-y,Screen::buffer1);
+
 end;
 
 procedure SceneIntroReset();
@@ -159,7 +182,7 @@ begin
 		stars[i].speed :=2+mod(Random::Random(),12);
 	end;
 	tp:=#intro_text;
-	current_scene_len:=300;
+	current_scene_len:=500;
 end;
 
 procedure SceneHighwaySkyLineDraw();
@@ -293,7 +316,7 @@ begin
 	Screen::SetMode($13);
 	Screen::InitVGABuffers(4);
 	ResetScene(current_scene);
-	SetPalette(current_scene);	
+	SetPalette(current_scene);		
 	
 	BeePlay::Initialize(#song);
 	BeePlay::octShift:=1; // octave shift
@@ -303,9 +326,9 @@ begin
 			
 	File::ReadAll(#font, Screen::buffer4);
 	Compression::Decompress(Screen::buffer4, Screen::buffer3);
-	Fonts::Init(Screen::buffer3,10,16,32,Fonts::DEFAULT_SHIFT);
+	Fonts::Init(Screen::buffer3,20,24,16,Fonts::DEFAULT_SHIFT);
 	Fonts::writeType := Fonts::WRITETYPE_MASK;
-	Fonts::maskColor := 1;
+    Fonts::maskColor := 1;
 
 	Memory::SetTimer(33860);
 	SetInterrupt($8, RasterIRQ());
