@@ -9,44 +9,59 @@ program demo01;
 @use "system/compression"
 @use "math/random"
 
+@export "music/tune.trt" "music.bin" 3
+@export "fonts/font.flf" "fonts/font.bin" 255
+@compress "fonts/font.bin" "font.bin"
+@export "sprites/sprites.flf" "sprites/sprites.bin" 255
+@compress "sprites/sprites.bin" "sprites.bin"	
+
 var	
-	@export "music/tune1.trt" "music.bin" 3
-	@export "fonts/font.flf" "fonts/font.bin" 255
-	@compress "fonts/font.bin" "font.bin"
-	
 	song: incbin("music.bin");
-	font: string="font.bin";
-	//font_pal: string="fonts/font.pal";
+	font: incbin("font.bin");
+	sprites: incbin("sprites.bin");
 	
-	i,time,scene_time : integer = 0;
+	i,j,time,scene_time : integer = 0;
 	color,color2,c : integer = 0;
 	current_scene : integer = 0;
 	current_scene_len : integer;
 	last_scene : integer = 2;
-	
+	debug : byte = 0;
+	p : pointer;
+		
 	/*
-	 * SCENE INTRO - STARS
+	 * SCENES
 	 */
-	particle = record
+	particle_type = record
 			x,y,z:signed integer;
 			speed:integer;
 	end;
-	stars : array[300] of particle;
+	stars : array[300] of particle_type;
 	stars_colors : array[256] of byte = buildtable("Math.sin(i*Math.PI/512)*63");
-	 
-	 
+
+	sprite_type = record
+		x,y,w,h: integer;
+	end;
+	
+	spr_ship_anim : array[9] of sprite_type;
+	spr_kkj_anim : array[9] of sprite_type;
+	spr_ship_big : array[4] of sprite_type;
+	spr_space_props : array[12] of sprite_type;
+	
 	skyline_distribution : array[256] of integer = buildtable("4+Math.sin(i*Math.PI/256)*32*Math.random()");
 	skyline_sizes : array[8] of integer = buildtable("8+32-Math.sin(Math.random())*32");
 	depth_color : array[128] of integer = buildtable("63-Math.sin(i*Math.PI/512)*63");
 
 	factor : integer;
-	
+	power_effect:integer=100;
+	scene_intro_bar_size:byte=0;
+	last_spr : byte=0;
 	/* 
     * SCENES
 	 */
 	x1,x2 : integer = 160;
 	y1,y2 : integer = 100;
 	x,y,z : integer;
+	size,w,h : integer;
 	sx,sy,sz : signed integer;
 	shift : integer = 0;
 	const line_width : byte = 15;
@@ -61,10 +76,10 @@ var
 	/*
 	 * STRINGS
 	 */
-	intro_text: string="POWERED BY TRSE";
-	lines_text: string="PLACEHOLDER EFFECT";
+	demo_name_text: string	= " C:/>DEMO1.EXE ";
+	powered_by_text: string	= "POWERED BY TRSE";
+	intel486_text: string	= " FOR INTEL 486 ";
 	outro_text: string="END OF THE DEMO...";	
-	highway_text: string="HERE WILL BE THE HIGHWAY";
 	date_text: string="OCTOBER 2023";
 	tp:pointer;
 
@@ -74,13 +89,37 @@ begin
 		0: begin						
 			for i:=0 to 64 do
 			begin	
-				c:=32+sin64[i];				
-				Screen::SetColor(i,		4+i/2,4+i/2,4+i/2);
-				Screen::SetColor(64+i,	63,63,63);
+				c:=32+sin64[i];
+				Screen::SetColor(i,		c/2,c/4,63-c);
+				Screen::SetColor(64+i,	4+i/2,4+i/2,4+i/2);
+				Screen::SetColor(128+i,	i/2,i/3,i);
+			end;
+			
+			Screen::SetColor(0,		4,4,4);
+			for i:=1 to 16 do
+			begin	
+				Screen::SetColor(i,		8+i*2,8+i*4,8+i*2.5);
 			end;
 		end;
 		
-		1: begin						
+		1: begin	
+			for i:=0 to 64 do
+			begin	
+				c:=32+sin64[i];
+				Screen::SetColor(i,		c/2,c/4,63-c);
+				Screen::SetColor(64+i,	4+i/2,4+i/2,4+i/2);
+				Screen::SetColor(128+i,	i/2,i/3,i);
+			end;
+			Screen::SetColor(0,		4,4,4);
+			
+			for i:=1 to 16 do
+			begin	
+				Screen::SetColor(i,		8+i*2.5,8+i*2,8+i*4);				
+				Screen::SetColor(i+16,	8+i*2.5,8+i*1,8+i*1);
+			end;
+		end;
+		
+		2: begin						
 			for i:=0 to 64 do
 			begin
 				c:=32+sin64[i];	
@@ -101,6 +140,13 @@ begin
 	end;	
 end;
 
+procedure VFXSpriteDraw(x1,y1,w,h,x2,y2:global integer);
+begin
+	for i:=0 to h do
+	begin
+		Memory::CopyData16(Screen::buffer2+((y1+i)*320+x1),Screen::buffer1+((y2+i)*320+x2),w/2);
+	end;
+end;
 
 procedure P1XLogoDraw(logo_color:byte);
 begin
@@ -127,9 +173,8 @@ begin
 	Gfx::DrawSquare(x+65,y+45,x+70,y+50,logo_color,Screen::buffer1);
 end;
 	
-procedure SceneIntroRender();
+procedure VfxRenderStars();
 begin
-	
 	for i:=0 to 300 do
 	begin
 		stars[i].z -= stars[i].speed;
@@ -141,35 +186,61 @@ begin
 		x:=(sx/sz)+160;
 		y:=(sy/sz)+100;		
 		
-		color:=63-stars_colors[sz];
+		color:=127-stars_colors[sz];
 
 		if (x>0 and (x<320 and (y>0 and y<200))) then
 		begin
 			Gfx::PutPixel(x,y,color,Screen::buffer1);
 		end		
 	end;
+end;
 
-	if(current_scene_len-scene_time<200 and scene_intro_color>2) then 
+procedure SceneIntroRender();
+begin
+	VfxRenderStars();
+	if(scene_time>300) then
 	begin
-	scene_intro_color-=2;
+		if(scene_intro_color>=2) then scene_intro_color-=2;
 	end
 	else
 	begin
-		if(scene_intro_color<63) then scene_intro_color+=1;
-	end;	
-	P1XLogoDraw(scene_intro_color);
+		if(scene_time>180  and  scene_intro_color<63) then scene_intro_color+=1;
+	end;
+	
+	if(scene_time>150) then
+	begin
+		if(scene_intro_bar_size>0) then scene_intro_bar_size-=1;
+	end
+	else
+	begin
+		if(scene_intro_bar_size<32) then scene_intro_bar_size+=1;
+	end;
+	
+	if(scene_intro_color>1) then
+	begin
+		P1XLogoDraw(scene_intro_color+64);
+	end;
 	
 	y:=sin32[mod(scene_time,255)];
-	Fonts::addValue:=scene_intro_color/2;
-	Fonts::maskColor := 1;
-	Fonts::PrintString(tp,10,170-y,Screen::buffer1);
-	if(scene_intro_color>5) then Fonts::addValue:=scene_intro_color-5;
-	Fonts::maskColor := 2;
-	Fonts::PrintString(tp,10,170-y,Screen::buffer1);
-	Fonts::addValue:=scene_intro_color;
-	Fonts::maskColor := 3;
-	Fonts::PrintString(tp,10,170-y,Screen::buffer1);
-
+	if(scene_intro_bar_size>0)then
+	begin
+		for j:=0 to scene_intro_bar_size do
+		begin
+			y2:=sin32[mod(scene_time+j,64)];
+			Gfx::Hline(0,320,166-y+j,16+y2,Screen::buffer1);
+			if(j>2 and j<29) then
+			begin
+				c:=1;
+				if(scene_intro_bar_size>31) then c:=63;
+				Gfx::Hline(9,311,166-y+j,c,Screen::buffer1);
+			end;
+		end;
+		
+		if(scene_intro_bar_size>31)then
+		begin
+			Fonts::PrintString(tp,10,170-y,Screen::buffer1);	
+		end;
+	end;	
 end;
 
 procedure SceneIntroReset();
@@ -181,14 +252,56 @@ begin
 		stars[i].z := mod(Random::Random(),255)+1;
 		stars[i].speed :=2+mod(Random::Random(),12);
 	end;
-	tp:=#intro_text;
-	current_scene_len:=500;
+	tp:=#demo_name_text;
+	current_scene_len:=435;
+	scene_intro_color:=0;
+	Fonts::writeType := Fonts::WRITETYPE_DIRECT;
+end;
+
+procedure SceneSpaceReset();
+begin
+	tp:=#powered_by_text;
+	current_scene_len:=1200;
+end;
+
+procedure SceneSpaceRender();
+begin
+  	VfxRenderStars();
+  	
+  	shift:=sin32[mod(scene_time,255)];
+  	
+  	// TODO: fly in from bottom of the screen
+	VFXSpriteDraw(
+		spr_ship_big[1].x,
+		spr_ship_big[1].y,
+		spr_ship_big[1].w,
+		spr_ship_big[1].h,
+		110,120-shift );
+	
+	
+	// talking
+	x:=10;
+	y:=120;
+	if(mod(scene_time,8)=0) then last_spr:=mod(Random::Random(),5);
+	if(scene_time>200) then tp:=#intel486_text;
+	
+	Gfx::DrawSquare(x-4,y-4,x+44,y+44,28,Screen::buffer1);
+	Gfx::DrawSquare(x-1,y-1,x+41,y+41,31,Screen::buffer1);
+		VFXSpriteDraw(
+		spr_kkj_anim[last_spr].x,
+		spr_kkj_anim[last_spr].y,
+		spr_kkj_anim[last_spr].w,
+		spr_kkj_anim[last_spr].h,
+		x,y );
+		
+	Gfx::DrawSquare(x-4,y+44,x+304,y+30+40,28,Screen::buffer1);
+	Fonts::PrintString(tp,10,y+45,Screen::buffer1);	
+
 end;
 
 procedure SceneHighwaySkyLineDraw();
 var
 	levels : integer;
-	size : integer;
 begin
 
 	for i:=0 to 80 do
@@ -198,9 +311,14 @@ begin
 	
 	Gfx::Hline(0,320,80,31,Screen::buffer1);
 	
-	Fonts::addValue:=90;
 	tp:=#date_text;
-	Fonts::PrintString(tp,160-(hi(tp))*5,40,Screen::buffer1);
+	for i:=1 to 7 do
+	begin
+		Fonts::addValue:=128+32+i*4;
+		Fonts::writeType := Fonts::WRITETYPE_MASK;
+	    Fonts::maskColor := i;
+		Fonts::PrintString(tp,40,30,Screen::buffer1);
+	end;
 	
 	for i:=0 to 256 step 16 do
 	begin
@@ -235,12 +353,12 @@ end;
 
 procedure SceneHighwayCarDraw();
 begin
-
+	
 end;
 
 procedure SceneHighwayReset();
 begin
-	current_scene_len:=2000;
+	current_scene_len:=300;
 	SceneHighwaySkyLineDraw();
 	SceneHighwayTerrainDraw();
 end;
@@ -256,14 +374,14 @@ end;
 
 procedure SceneOutroRender();
 begin
-	Fonts::addValue:=128;
-	Fonts::PrintString(tp,160-(hi(tp))*5,100,Screen::buffer1);
+	Fonts::PrintString(tp,40,100,Screen::buffer1);
 end;
 
 procedure SceneOutroReset();
 begin
 	tp:=#outro_text;
 	current_scene_len:=30;
+	Fonts::writeType := Fonts::WRITETYPE_DIRECT;
 end;
 
 procedure ResetScene(scene_to_reset: integer);
@@ -274,9 +392,12 @@ begin
 			SceneIntroReset();
 			end;
 		1: begin
+			SceneSpaceReset();
+			end;			
+		2: begin
 			SceneHighwayReset();
 			end;
-		2: begin
+		3: begin
 			SceneOutroReset();
 			end;
 	end;
@@ -290,9 +411,13 @@ begin
 			SceneIntroRender();
 			end;
 		1: begin
-			SceneHighwayRender();
+			Screen::ClearBuffer32bit(Screen::buffer1,0);
+			SceneSpaceRender();
 			end;
 		2: begin
+			SceneHighwayRender();
+			end;
+		3: begin
 			Screen::ClearBuffer32bit(Screen::buffer1,0);
 			SceneOutroRender();
 		end;
@@ -310,33 +435,116 @@ begin
 	CloseIRQ();
 end;
 
+procedure ReColorSprite(x,y,w,h:global integer;color_shift:byte;);
+begin
+	for y2:=y to y+h do
+	begin
+		for x2:=x to x+w do 
+		begin
+			/*c:=Screen_buffer2[(y2*320)+x2]+color_shift;
+			if(c>1) then Gfx::PutPixel(x2,y2,c,Screen::buffer2);
+			if(c<=1) then Gfx::PutPixel(x2,y2,0,Screen::buffer2);*/
+			Gfx::PutPixel(x2,y2,Screen_buffer2[(y2*320)+x2]+color_shift,Screen::buffer2);
+		end;
+	end;
+end;
 
 begin
 	Memory::Init();
 	Screen::SetMode($13);
-	Screen::InitVGABuffers(4);
-	ResetScene(current_scene);
-	SetPalette(current_scene);		
+	Screen::InitVGABuffers(4);	
 	
+	/*
+	 * LOAD TUNE
+	 */
 	BeePlay::Initialize(#song);
 	BeePlay::octShift:=1; // octave shift
 	BeePlay::decayLength[0]:=2; // Sustain of columm 0
-	BeePlay::decayLength[1]:=4; // Sustain of column 1
+	BeePlay::decayLength[1]:=5; // Sustain of column 1
 	BeePlay::speed := 3;
-			
-	File::ReadAll(#font, Screen::buffer4);
-	Compression::Decompress(Screen::buffer4, Screen::buffer3);
-	Fonts::Init(Screen::buffer3,20,24,16,Fonts::DEFAULT_SHIFT);
-	Fonts::writeType := Fonts::WRITETYPE_MASK;
-    Fonts::maskColor := 1;
-
+	
 	Memory::SetTimer(33860);
 	SetInterrupt($8, RasterIRQ());
+	
+	/*
+	 * LOAD FONT
+	 */
+	Screen::CopyVGABuffer32bit(#font,Screen::buffer4);
+	Compression::Decompress(Screen::buffer4, Screen::buffer3);
+	Fonts::Init(Screen::buffer3,20,24,16,Fonts::DEFAULT_SHIFT);
 
+	/*
+	 * LOAD SPRITES
+	 */
+	Screen::CopyVGABuffer32bit(#sprites,Screen::buffer4);
+	Compression::Decompress(Screen::buffer4, Screen::buffer2);
+
+	// flying side
+	spr_ship_big[0].x := 0;
+	spr_ship_big[0].y := 115;
+	spr_ship_big[0].w := 132;
+	spr_ship_big[0].h := 84;
+
+	// flying stright
+	spr_ship_big[1].x := 148;
+	spr_ship_big[1].y := 90;
+	spr_ship_big[1].w := 100;
+	spr_ship_big[1].h := 54;
+	
+	//ReColorSprite(spr_ship_big[1].x,spr_ship_big[1].y,spr_ship_big[1].w,spr_ship_big[1].h,90);
+	
+	// flying up  corner
+	spr_ship_big[2].x := 252;
+	spr_ship_big[2].y := 110;
+	spr_ship_big[2].w := 68;
+	spr_ship_big[2].h := 41;
+
+	// landed
+	spr_ship_big[3].x := 175;
+	spr_ship_big[3].y := 149;
+	spr_ship_big[3].w := 145;
+	spr_ship_big[3].h := 51;
+	
+	// 
+	for i:=0 to 9 do
+	begin
+		y := 24;
+		case i of
+			0: x:= 40;
+			1: x:= 80;
+			2: x:= 120;
+			3: x:= 160;
+			4: x:= 200;
+			5: x:= 240;
+			6: x:= 280;
+			7: begin
+			x := 0;
+			y := 48;
+			end;
+			8: begin
+			x := 40;
+			y := 64;
+			end;
+		end;
+		spr_kkj_anim[i].x := x;
+		spr_kkj_anim[i].y := y;
+		spr_kkj_anim[i].w := 40;
+		spr_kkj_anim[i].h := 40;
+		
+		ReColorSprite(spr_kkj_anim[i].x,spr_kkj_anim[i].y,spr_kkj_anim[i].w,spr_kkj_anim[i].h,17);
+	end;
+	/*
+	 * INIT FIRST SCENE
+	 */
+	ResetScene(current_scene);
+	SetPalette(current_scene);	
+	
+	/*
+	 * DEMO LOOP
+	 */
 	while (true) do
 	begin
 		waitforverticalblank();
-			
 		Screen::CopyVGABuffer32bit(Screen::buffer1,ptr(Screen::VGA,0));
 		
 		if (scene_time>current_scene_len) then
@@ -352,11 +560,10 @@ begin
 			ResetScene(current_scene);
 			SetPalette(current_scene);
 		end;
-	
 		
 		RenderScene(current_scene);
 		
-		DrawPalette();
+		if(debug=1) then DrawPalette();
 	end;
 	
 end.
