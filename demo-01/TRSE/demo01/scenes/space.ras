@@ -1,0 +1,41 @@
+procedure SceneSpaceReset();
+begin
+	tp:=#powered_by_text;
+	current_scene_len:=1200;
+end;
+
+procedure SceneSpaceRender();
+begin
+  	VfxRenderStars();
+  	
+  	shift:=sin32[mod(scene_time,255)];
+  	
+  	// TODO: fly in from bottom of the screen
+	VFXSpriteDraw(
+		spr_ship_big[1].x,
+		spr_ship_big[1].y,
+		spr_ship_big[1].w,
+		spr_ship_big[1].h,
+		110,120-shift,
+		Screen::buffer2);
+	
+	
+	// talking
+	x:=10;
+	y:=120;
+	if(mod(scene_time,8)=0) then last_spr:=mod(Random::Random(),5);
+	if(scene_time>200) then tp:=#intel486_text;
+	
+	Gfx::DrawSquare(x-4,y-4,x+44,y+44,28,Screen::buffer1);
+	Gfx::DrawSquare(x-1,y-1,x+41,y+41,31,Screen::buffer1);
+		VFXSpriteDraw(
+		spr_kkj_anim[last_spr].x,
+		spr_kkj_anim[last_spr].y,
+		spr_kkj_anim[last_spr].w,
+		spr_kkj_anim[last_spr].h,
+		x,y,
+		Screen::buffer2 );
+		
+	Gfx::DrawSquare(x-4,y+44,x+304,y+30+40,28,Screen::buffer1);
+	Fonts::PrintString(tp,10,y+45,Screen::buffer1);	
+end;

@@ -1,4 +1,3 @@
-
 procedure SceneHighwaySkyLineDraw();
 var
 	levels : integer;

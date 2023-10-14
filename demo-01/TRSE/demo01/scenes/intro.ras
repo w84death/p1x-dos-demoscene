@@ -45,3 +45,18 @@ begin
 		end;
 	end;	
 end;
+
+procedure SceneIntroReset();
+begin
+	for i:=0 to 300 do
+	begin
+		stars[i].x := 10000-mod(Random::Random(),20000);
+		stars[i].y := 10000-mod(Random::Random(),20000); 
+		stars[i].z := mod(Random::Random(),255)+1;
+		stars[i].speed :=2+mod(Random::Random(),12);
+	end;
+	tp:=#demo_name_text;
+	current_scene_len:=435;
+	scene_intro_color:=0;
+	Fonts::writeType := Fonts::WRITETYPE_DIRECT;
+end;

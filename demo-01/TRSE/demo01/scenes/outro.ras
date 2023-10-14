@@ -1,12 +1,43 @@
-
 procedure SceneOutroRender();
 begin
-	Fonts::PrintString(tp,40,100,Screen::buffer1);
+	x:=sin256[mod(scene_time,256)]*2;
+	if(scene_time>100 and scene_time<300) then
+	begin
+		VFXSpriteDraw(
+			spr_logos[0].x,
+			spr_logos[0].y,
+			spr_logos[0].w,
+			spr_logos[0].h,
+			x,41,Screen::buffer4);
+	end;
+	
+	if(scene_time>350 and scene_time<550) then
+	begin
+		VFXSpriteDraw(
+			spr_logos[1].x,
+			spr_logos[1].y,
+			spr_logos[1].w,
+			spr_logos[1].h,
+			x,59,Screen::buffer4);
+	end;
+	
+	if(scene_time>600 and scene_time<800) then
+	begin
+		VFXSpriteDraw(
+			spr_logos[2].x,
+			spr_logos[2].y,
+			spr_logos[2].w,
+			spr_logos[2].h,
+			x,56,Screen::buffer4);
+	end;
+	
+	Fonts::PrintString(tp,0-scene_time,0,Screen::buffer1);	
+	Fonts::PrintString(tp,0+scene_time,170,Screen::buffer1);
 end;
 
 procedure SceneOutroReset();
 begin
 	tp:=#outro_text;
-	current_scene_len:=30;
+	current_scene_len:=850;
 	Fonts::writeType := Fonts::WRITETYPE_DIRECT;
 end;
