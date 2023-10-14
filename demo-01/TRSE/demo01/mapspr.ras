@@ -1,0 +1,72 @@
+procedure ReColorSprite(x,y,w,h:global integer;color_shift:byte;);
+begin
+	for y2:=y to y+h do
+	begin
+		for x2:=x to x+w do 
+		begin
+			/*c:=Screen_buffer2[(y2*320)+x2]+color_shift;
+			if(c>1) then Gfx::PutPixel(x2,y2,c,Screen::buffer2);
+			if(c<=1) then Gfx::PutPixel(x2,y2,0,Screen::buffer2);*/
+			Gfx::PutPixel(x2,y2,Screen_buffer2[(y2*320)+x2]+color_shift,Screen::buffer2);
+		end;
+	end;
+end;
+
+procedure MapSprites();
+begin
+		// flying side
+	spr_ship_big[0].x := 0;
+	spr_ship_big[0].y := 115;
+	spr_ship_big[0].w := 132;
+	spr_ship_big[0].h := 84;
+
+	// flying stright
+	spr_ship_big[1].x := 148;
+	spr_ship_big[1].y := 90;
+	spr_ship_big[1].w := 100;
+	spr_ship_big[1].h := 54;
+	
+	//ReColorSprite(spr_ship_big[1].x,spr_ship_big[1].y,spr_ship_big[1].w,spr_ship_big[1].h,90);
+	
+	// flying up  corner
+	spr_ship_big[2].x := 252;
+	spr_ship_big[2].y := 110;
+	spr_ship_big[2].w := 68;
+	spr_ship_big[2].h := 41;
+
+	// landed
+	spr_ship_big[3].x := 175;
+	spr_ship_big[3].y := 149;
+	spr_ship_big[3].w := 145;
+	spr_ship_big[3].h := 51;
+	
+	// 
+	for i:=0 to 9 do
+	begin
+		y := 24;
+		case i of
+			0: x:= 40;
+			1: x:= 80;
+			2: x:= 120;
+			3: x:= 160;
+			4: x:= 200;
+			5: x:= 240;
+			6: x:= 280;
+			7: begin
+			x := 0;
+			y := 48;
+			end;
+			8: begin
+			x := 40;
+			y := 64;
+			end;
+		end;
+		spr_kkj_anim[i].x := x;
+		spr_kkj_anim[i].y := y;
+		spr_kkj_anim[i].w := 40;
+		spr_kkj_anim[i].h := 40;
+		
+		ReColorSprite(spr_kkj_anim[i].x,spr_kkj_anim[i].y,spr_kkj_anim[i].w,spr_kkj_anim[i].h,17);
+	end;
+end;
+

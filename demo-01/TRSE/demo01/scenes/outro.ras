@@ -1,0 +1,12 @@
+
+procedure SceneOutroRender();
+begin
+	Fonts::PrintString(tp,40,100,Screen::buffer1);
+end;
+
+procedure SceneOutroReset();
+begin
+	tp:=#outro_text;
+	current_scene_len:=30;
+	Fonts::writeType := Fonts::WRITETYPE_DIRECT;
+end;

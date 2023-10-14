@@ -1,0 +1,72 @@
+
+procedure SceneHighwaySkyLineDraw();
+var
+	levels : integer;
+begin
+
+	for i:=0 to 80 do
+	begin
+		Gfx::Hline(0,320,i,128+i/2,Screen::buffer1);
+	end;
+	
+	Gfx::Hline(0,320,80,31,Screen::buffer1);
+	
+	tp:=#date_text;
+	for i:=1 to 7 do
+	begin
+		Fonts::addValue:=128+32+i*4;
+		Fonts::writeType := Fonts::WRITETYPE_MASK;
+	    Fonts::maskColor := i;
+		Fonts::PrintString(tp,40,30,Screen::buffer1);
+	end;
+	
+	for i:=0 to 256 step 16 do
+	begin
+		x:=32+i;
+		levels:=skyline_distribution[i];
+		size:=4+skyline_sizes[i/16];
+		Gfx::DrawSquare(x,80-levels,x+size,80,0,Screen::buffer1);
+	end;
+end;
+
+procedure SceneHighwayTerrainDraw();
+var
+		factor2:integer;
+begin
+	for i:=0 to 120 do
+	begin
+		factor:=1+(i*100/120);
+		factor2:=1+(i*100+1)/factor;
+		color:=63-depth_color[i];
+		color2:=127-depth_color[i];
+		c:=255-depth_color[i];
+
+		Gfx::Hline(0,160-factor,80+i,color2,Screen::buffer1);
+		Gfx::Hline(160-factor,160+factor,80+i,color,Screen::buffer1);
+		if(mod(scene_time-factor2,20)>15) then
+		begin
+			Gfx::Hline(160-factor/5,160+factor/5,80+i,c,Screen::buffer1);			
+		end;
+		Gfx::Hline(160+factor,320,80+i,color2,Screen::buffer1);
+	end;
+end;
+
+procedure SceneHighwayCarDraw();
+begin
+	
+end;
+
+procedure SceneHighwayReset();
+begin
+	current_scene_len:=300;
+	SceneHighwaySkyLineDraw();
+	SceneHighwayTerrainDraw();
+end;
+
+procedure SceneHighwayRender();
+begin	
+	// once 2 sec refresh city
+
+	SceneHighwayTerrainDraw();
+	SceneHighwayCarDraw();
+end;
