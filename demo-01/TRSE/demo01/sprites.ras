@@ -7,7 +7,7 @@ begin
 			/*c:=Screen_buffer2[(y2*320)+x2]+color_shift;
 			if(c>1) then Gfx::PutPixel(x2,y2,c,Screen::buffer2);
 			if(c<=1) then Gfx::PutPixel(x2,y2,0,Screen::buffer2);*/
-			Gfx::PutPixel(x2,y2,Screen_buffer2[(y2*320)+x2]+color_shift,Screen::buffer2);
+			Gfx::PutPixelVGA(Screen::buffer2,x2,y2,Screen_buffer2[(y2*320)+x2]+color_shift);
 		end;
 	end;
 end;

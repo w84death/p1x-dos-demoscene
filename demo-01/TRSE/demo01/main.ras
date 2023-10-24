@@ -210,7 +210,7 @@ begin
 
 		if (x>0 and (x<320 and (y>0 and y<200))) then
 		begin
-			Gfx::PutPixel(x,y,color,Screen::buffer1);
+			Gfx::PutPixelVGA(Screen::buffer1,x,y,color);
 		end		
 	end;
 end;

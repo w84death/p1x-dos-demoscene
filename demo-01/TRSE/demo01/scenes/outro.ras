@@ -1,6 +1,27 @@
+procedure SceneOutroFloorDraw();
+var
+	fov:integer;
+	fx,fy:signed integer;
+begin
+	fov:=250;
+	for sy:=40 to 160 do
+	begin
+		for sx:=0 to 320 do
+		begin
+			sz:=sy-35;
+			fx:=(160-sx)/sz;
+			fy:=fov/sz;
+			color:=1;
+			if(mod(fx,2)=mod(fy,2)) then color:=color+2;
+			Gfx::PutPixelVGA(Screen::buffer1,sx,sy,color);
+		end;
+	end;
+end;
+	
 procedure SceneOutroRender();
 begin
 	x:=sin256[mod(scene_time,256)]*2;
+	SceneOutroFloorDraw();
 	if(scene_time>100 and scene_time<300) then
 	begin
 		VFXSpriteDraw(
